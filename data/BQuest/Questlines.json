@@ -1,0 +1,22 @@
+{
+  "Questlines": [
+    {
+      "QuestlineId": 3001,
+      "DisplayName": "Frontier Path",
+      "DisplayNameMultiLanguage": {
+        "ru": "Путь первопроходца",
+        "en": "Frontier Path"
+      },
+      "StageQuestIds": [3101, 3102, 3103]
+    },
+    {
+      "QuestlineId": 3002,
+      "DisplayName": "Base Builder",
+      "DisplayNameMultiLanguage": {
+        "ru": "Строительство базы",
+        "en": "Base Builder"
+      },
+      "StageQuestIds": [3201, 3202, 3203, 3204, 3205, 3206, 3207, 3208]
+    }
+  ]
+}

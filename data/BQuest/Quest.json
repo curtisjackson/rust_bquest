@@ -1,0 +1,2189 @@
+{
+  "Quests": [
+    {
+      "QuestID": 1001,
+      "QuestDisplayName": "Stone Collector",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Сборщик камня",
+        "en": "Stone Collector"
+      },
+      "QuestDescription": "Gather stone for your first tools.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Добудьте камень для первых инструментов.",
+        "en": "Gather stone for your first tools."
+      },
+      "QuestMissions": "Gather 3000 stones.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 3000 камня.",
+        "en": "Gather 3000 stones."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Starter",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1001_gather_stones",
+          "Type": "Gather",
+          "Target": "stones",
+          "TargetCount": 3000,
+          "Description": "Gather stones",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите камень",
+            "en": "Gather stones"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Stone Hatchet",
+          "PrizeType": "Item",
+          "ItemShortName": "stonehatchet",
+          "ItemAmount": 1
+        },
+        {
+          "PrizeName": "Wood",
+          "PrizeType": "Item",
+          "ItemShortName": "wood",
+          "ItemAmount": 1000
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 6044
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 12157
+        }
+      ],
+      "Cooldown": 60,
+      "AllowManualStart": true,
+      "AllowTrack": true,
+      "AllowCancel": true,
+      "AllowClaim": true,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1002,
+      "QuestDisplayName": "Barrel Hunter",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Охотник за бочками",
+        "en": "Barrel Hunter"
+      },
+      "QuestDescription": "Destroy roadside barrels.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Уничтожьте дорожные бочки.",
+        "en": "Destroy roadside barrels."
+      },
+      "QuestMissions": "Destroy 10 loot barrels.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Уничтожьте 10 лутовых бочек.",
+        "en": "Destroy 10 loot barrels."
+      },
+      "QuestType": "EntityKill",
+      "QuestCategory": "Misc. Quests",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1002_barrels",
+          "Type": "EntityKill",
+          "Target": "loot-barrel",
+          "TargetCount": 10,
+          "Description": "Destroy roadside barrels",
+          "DescriptionMultiLanguage": {
+            "ru": "Ломайте дорожные бочки",
+            "en": "Destroy roadside barrels"
+          },
+          "MatchMode": "prefab"
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Scrap",
+          "PrizeType": "Item",
+          "ItemShortName": "scrap",
+          "ItemAmount": 75
+        },
+        {
+          "PrizeName": "Wood",
+          "PrizeType": "Item",
+          "ItemShortName": "wood",
+          "ItemAmount": 1000
+        },
+        {
+          "PrizeName": "Stone",
+          "PrizeType": "Item",
+          "ItemShortName": "stones",
+          "ItemAmount": 1000
+        },
+        {
+          "PrizeName": "HQM",
+          "PrizeType": "Item",
+          "ItemShortName": "metal.refined",
+          "ItemAmount": 100
+        },
+        {
+          "PrizeName": "Stone Hatchet",
+          "PrizeType": "Item",
+          "ItemShortName": "stonehatchet",
+          "ItemAmount": 1
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 3860
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 9973
+        }
+      ],
+      "IsRepeatable": true,
+      "Cooldown": 60
+    },
+    {
+      "QuestID": 1003,
+      "QuestDisplayName": "Supply Delivery",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Поставка припасов",
+        "en": "Supply Delivery"
+      },
+      "QuestDescription": "Submit cloth to the quartermaster.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Сдайте ткань квартирмейстеру.",
+        "en": "Submit cloth to the quartermaster."
+      },
+      "QuestMissions": "Submit 200 cloth.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Сдайте 200 ткани.",
+        "en": "Submit 200 cloth."
+      },
+      "QuestType": "Delivery",
+      "QuestCategory": "Starter",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1003_submit_cloth",
+          "Type": "Delivery",
+          "Target": "cloth",
+          "TargetCount": 200,
+          "Description": "Submit cloth",
+          "DescriptionMultiLanguage": {
+            "ru": "Сдайте ткань",
+            "en": "Submit cloth"
+          },
+          "SubmissionRequired": true
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Medical Syringe",
+          "PrizeType": "Item",
+          "ItemShortName": "syringe.medical",
+          "ItemAmount": 5
+        },
+        {
+          "PrizeName": "Blueprint Fragments",
+          "PrizeType": "BlueprintFragments",
+          "ItemAmount": 30
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 1676
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 7789
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1004,
+      "QuestDisplayName": "Wood Delivery",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Поставка дерева",
+        "en": "Wood Delivery"
+      },
+      "QuestDescription": "Submit wood to the quartermaster.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Сдайте дерево квартирмейстеру.",
+        "en": "Submit wood to the quartermaster."
+      },
+      "QuestMissions": "Submit 1000 wood.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Сдайте 1000 дерева.",
+        "en": "Submit 1000 wood."
+      },
+      "QuestType": "Delivery",
+      "QuestCategory": "Starter",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1004_submit_wood",
+          "Type": "Delivery",
+          "Target": "wood",
+          "TargetCount": 1000,
+          "Description": "Submit wood",
+          "DescriptionMultiLanguage": {
+            "ru": "Сдайте дерево",
+            "en": "Submit wood"
+          },
+          "SubmissionRequired": true
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Metal Fragments",
+          "PrizeType": "Item",
+          "ItemShortName": "metal.fragments",
+          "ItemAmount": 500
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 4500
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 9000
+        }
+      ],
+      "Cooldown": 30,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1005,
+      "QuestDisplayName": "Tunnel Dweller Hunt",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Охота на Tunnel Dweller",
+        "en": "Tunnel Dweller Hunt"
+      },
+      "QuestDescription": "Eliminate tunnel dwellers in the underground tunnels.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Уничтожьте Tunnel Dweller в подземных туннелях.",
+        "en": "Eliminate tunnel dwellers in the underground tunnels."
+      },
+      "QuestMissions": "Kill 3 tunnel dwellers.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Убейте 3 Tunnel Dweller.",
+        "en": "Kill 3 tunnel dwellers."
+      },
+      "QuestType": "EntityKill",
+      "QuestCategory": "Misc. Quests",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1005_tunneldweller",
+          "Type": "EntityKill",
+          "Target": "tunneldweller",
+          "MatchAliases": [
+            "tunnel dweller",
+            "tunneldweller",
+            "dweller"
+          ],
+          "TargetCount": 3,
+          "Description": "Kill tunnel dwellers",
+          "DescriptionMultiLanguage": {
+            "ru": "Убейте Tunnel Dweller",
+            "en": "Kill tunnel dwellers"
+          },
+          "MatchMode": "contains"
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "MP5A4",
+          "PrizeType": "Item",
+          "ItemShortName": "smg.mp5",
+          "ItemAmount": 1
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 7000
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 12000
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1006,
+      "QuestDisplayName": "Scientist Sweep",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Зачистка ученых",
+        "en": "Scientist Sweep"
+      },
+      "QuestDescription": "Eliminate roaming scientists.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Уничтожьте обычных ученых.",
+        "en": "Eliminate roaming scientists."
+      },
+      "QuestMissions": "Kill 3 scientists.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Убейте 3 ученых.",
+        "en": "Kill 3 scientists."
+      },
+      "QuestType": "EntityKill",
+      "QuestCategory": "Misc. Quests",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1006_scientist",
+          "Type": "EntityKill",
+          "Target": "scientistnpc",
+          "MatchAliases": [
+            "scientist",
+            "npcscientist"
+          ],
+          "TargetCount": 3,
+          "Description": "Kill scientists",
+          "DescriptionMultiLanguage": {
+            "ru": "Убейте ученых",
+            "en": "Kill scientists"
+          },
+          "MatchMode": "contains"
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Assault Rifle",
+          "PrizeType": "Item",
+          "ItemShortName": "rifle.ak",
+          "ItemAmount": 1
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 9000
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 14000
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1007,
+      "QuestDisplayName": "Heavy Scientist Hunt",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Охота на Heavy Scientist",
+        "en": "Heavy Scientist Hunt"
+      },
+      "QuestDescription": "Eliminate heavy scientists.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Уничтожьте Heavy Scientist.",
+        "en": "Eliminate heavy scientists."
+      },
+      "QuestMissions": "Kill 3 heavy scientists.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Убейте 3 Heavy Scientist.",
+        "en": "Kill 3 heavy scientists."
+      },
+      "QuestType": "EntityKill",
+      "QuestCategory": "Misc. Quests",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1007_heavy_scientist",
+          "Type": "EntityKill",
+          "Target": "scientistnpc_heavy",
+          "MatchAliases": [
+            "heavyscientist",
+            "heavy scientist",
+            "scientistnpcheavy"
+          ],
+          "TargetCount": 3,
+          "Description": "Kill heavy scientists",
+          "DescriptionMultiLanguage": {
+            "ru": "Убейте Heavy Scientist",
+            "en": "Kill heavy scientists"
+          },
+          "MatchMode": "contains"
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "M249",
+          "PrizeType": "Item",
+          "ItemShortName": "lmg.m249",
+          "ItemAmount": 1
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 12000
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 18000
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1101,
+      "QuestDisplayName": "Wood Collector I",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Сбор дерева I",
+        "en": "Wood Collector I"
+      },
+      "QuestDescription": "Gather a starter stockpile of wood.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Соберите стартовый запас дерева.",
+        "en": "Gather a starter stockpile of wood."
+      },
+      "QuestMissions": "Gather 5000 wood.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 5000 дерева.",
+        "en": "Gather 5000 wood."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Wood",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1101_gather",
+          "Type": "Gather",
+          "Target": "wood",
+          "TargetCount": 5000,
+          "Description": "Gather wood",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите дерево",
+            "en": "Gather wood"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Scrap",
+          "PrizeType": "Item",
+          "ItemShortName": "scrap",
+          "ItemAmount": 75
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 15656
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 2768
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1102,
+      "QuestDisplayName": "Wood Collector II",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Сбор дерева II",
+        "en": "Wood Collector II"
+      },
+      "QuestDescription": "Gather more wood for expansion.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Соберите больше дерева для расширения базы.",
+        "en": "Gather more wood for expansion."
+      },
+      "QuestMissions": "Gather 10000 wood.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 10000 дерева.",
+        "en": "Gather 10000 wood."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Wood",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1102_gather",
+          "Type": "Gather",
+          "Target": "wood",
+          "TargetCount": 10000,
+          "Description": "Gather wood",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите дерево",
+            "en": "Gather wood"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Scrap",
+          "PrizeType": "Item",
+          "ItemShortName": "scrap",
+          "ItemAmount": 150
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 13472
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 19585
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1103,
+      "QuestDisplayName": "Wood Collector III",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Сбор дерева III",
+        "en": "Wood Collector III"
+      },
+      "QuestDescription": "Stockpile enough wood for a serious build.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Подготовьте серьезный запас дерева для стройки.",
+        "en": "Stockpile enough wood for a serious build."
+      },
+      "QuestMissions": "Gather 20000 wood.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 20000 дерева.",
+        "en": "Gather 20000 wood."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Wood",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1103_gather",
+          "Type": "Gather",
+          "Target": "wood",
+          "TargetCount": 20000,
+          "Description": "Gather wood",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите дерево",
+            "en": "Gather wood"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Scrap",
+          "PrizeType": "Item",
+          "ItemShortName": "scrap",
+          "ItemAmount": 300
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 11288
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 17401
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1104,
+      "QuestDisplayName": "Wood Collector IV",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Сбор дерева IV",
+        "en": "Wood Collector IV"
+      },
+      "QuestDescription": "Keep the furnaces and walls fed with wood.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Поддерживайте стройку и печи большим запасом дерева.",
+        "en": "Keep the furnaces and walls fed with wood."
+      },
+      "QuestMissions": "Gather 50000 wood.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 50000 дерева.",
+        "en": "Gather 50000 wood."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Wood",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1104_gather",
+          "Type": "Gather",
+          "Target": "wood",
+          "TargetCount": 50000,
+          "Description": "Gather wood",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите дерево",
+            "en": "Gather wood"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Scrap",
+          "PrizeType": "Item",
+          "ItemShortName": "scrap",
+          "ItemAmount": 700
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 9104
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 15217
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1105,
+      "QuestDisplayName": "Wood Collector V",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Сбор дерева V",
+        "en": "Wood Collector V"
+      },
+      "QuestDescription": "Finish a massive lumber run.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Завершите огромный лесной забег.",
+        "en": "Finish a massive lumber run."
+      },
+      "QuestMissions": "Gather 100000 wood.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 100000 дерева.",
+        "en": "Gather 100000 wood."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Wood",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1105_gather",
+          "Type": "Gather",
+          "Target": "wood",
+          "TargetCount": 100000,
+          "Description": "Gather wood",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите дерево",
+            "en": "Gather wood"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Scrap",
+          "PrizeType": "Item",
+          "ItemShortName": "scrap",
+          "ItemAmount": 1500
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 6920
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 13033
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1111,
+      "QuestDisplayName": "Stone Collector I",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Сбор камня I",
+        "en": "Stone Collector I"
+      },
+      "QuestDescription": "Bring in stone for your base shell.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Добудьте камень для основы базы.",
+        "en": "Bring in stone for your base shell."
+      },
+      "QuestMissions": "Gather 5000 stones.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 5000 камня.",
+        "en": "Gather 5000 stones."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Stone",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1111_gather",
+          "Type": "Gather",
+          "Target": "stones",
+          "TargetCount": 5000,
+          "Description": "Gather stone",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите камень",
+            "en": "Gather stone"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Metal Fragments",
+          "PrizeType": "Item",
+          "ItemShortName": "metal.fragments",
+          "ItemAmount": 250
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 12817
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 18930
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1112,
+      "QuestDisplayName": "Stone Collector II",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Сбор камня II",
+        "en": "Stone Collector II"
+      },
+      "QuestDescription": "Expand your quarry run.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Увеличьте добычу камня.",
+        "en": "Expand your quarry run."
+      },
+      "QuestMissions": "Gather 10000 stones.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 10000 камня.",
+        "en": "Gather 10000 stones."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Stone",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1112_gather",
+          "Type": "Gather",
+          "Target": "stones",
+          "TargetCount": 10000,
+          "Description": "Gather stone",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите камень",
+            "en": "Gather stone"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Metal Fragments",
+          "PrizeType": "Item",
+          "ItemShortName": "metal.fragments",
+          "ItemAmount": 500
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 10633
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 16746
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1113,
+      "QuestDisplayName": "Stone Collector III",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Сбор камня III",
+        "en": "Stone Collector III"
+      },
+      "QuestDescription": "Keep the stone stockpile growing.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Продолжайте наращивать запасы камня.",
+        "en": "Keep the stone stockpile growing."
+      },
+      "QuestMissions": "Gather 20000 stones.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 20000 камня.",
+        "en": "Gather 20000 stones."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Stone",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1113_gather",
+          "Type": "Gather",
+          "Target": "stones",
+          "TargetCount": 20000,
+          "Description": "Gather stone",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите камень",
+            "en": "Gather stone"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Metal Fragments",
+          "PrizeType": "Item",
+          "ItemShortName": "metal.fragments",
+          "ItemAmount": 1000
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 8449
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 14562
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1114,
+      "QuestDisplayName": "Stone Collector IV",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Сбор камня IV",
+        "en": "Stone Collector IV"
+      },
+      "QuestDescription": "Build a serious reserve of stone.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Соберите серьезный запас камня.",
+        "en": "Build a serious reserve of stone."
+      },
+      "QuestMissions": "Gather 50000 stones.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 50000 камня.",
+        "en": "Gather 50000 stones."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Stone",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1114_gather",
+          "Type": "Gather",
+          "Target": "stones",
+          "TargetCount": 50000,
+          "Description": "Gather stone",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите камень",
+            "en": "Gather stone"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Metal Fragments",
+          "PrizeType": "Item",
+          "ItemShortName": "metal.fragments",
+          "ItemAmount": 2500
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 6265
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 12378
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1115,
+      "QuestDisplayName": "Stone Collector V",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Сбор камня V",
+        "en": "Stone Collector V"
+      },
+      "QuestDescription": "Finish a massive stone haul.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Завершите огромную добычу камня.",
+        "en": "Finish a massive stone haul."
+      },
+      "QuestMissions": "Gather 100000 stones.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 100000 камня.",
+        "en": "Gather 100000 stones."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Stone",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1115_gather",
+          "Type": "Gather",
+          "Target": "stones",
+          "TargetCount": 100000,
+          "Description": "Gather stone",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите камень",
+            "en": "Gather stone"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Metal Fragments",
+          "PrizeType": "Item",
+          "ItemShortName": "metal.fragments",
+          "ItemAmount": 5000
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 4081
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 10194
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1121,
+      "QuestDisplayName": "Metal Collector I",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Сбор фрагментов I",
+        "en": "Metal Collector I"
+      },
+      "QuestDescription": "Bring back refined metal fragments for production.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Добудьте фрагменты металла для производства.",
+        "en": "Bring back refined metal fragments for production."
+      },
+      "QuestMissions": "Gather 5000 metal fragments.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 5000 фрагментов металла.",
+        "en": "Gather 5000 metal fragments."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Metal",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1121_gather",
+          "Type": "Gather",
+          "Target": "metal.fragments",
+          "TargetCount": 5000,
+          "Description": "Gather metal fragments",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите фрагменты металла",
+            "en": "Gather metal fragments"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Scrap",
+          "PrizeType": "Item",
+          "ItemShortName": "scrap",
+          "ItemAmount": 100
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 9978
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 16091
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1122,
+      "QuestDisplayName": "Metal Collector II",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Сбор фрагментов II",
+        "en": "Metal Collector II"
+      },
+      "QuestDescription": "Keep the metal reserve moving upward.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Продолжайте пополнять запас фрагментов металла.",
+        "en": "Keep the metal reserve moving upward."
+      },
+      "QuestMissions": "Gather 10000 metal fragments.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 10000 фрагментов металла.",
+        "en": "Gather 10000 metal fragments."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Metal",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1122_gather",
+          "Type": "Gather",
+          "Target": "metal.fragments",
+          "TargetCount": 10000,
+          "Description": "Gather metal fragments",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите фрагменты металла",
+            "en": "Gather metal fragments"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Scrap",
+          "PrizeType": "Item",
+          "ItemShortName": "scrap",
+          "ItemAmount": 200
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 7794
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 13907
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1123,
+      "QuestDisplayName": "Metal Collector III",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Сбор фрагментов III",
+        "en": "Metal Collector III"
+      },
+      "QuestDescription": "Prepare a serious smelting reserve.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Подготовьте серьезный запас металла.",
+        "en": "Prepare a serious smelting reserve."
+      },
+      "QuestMissions": "Gather 20000 metal fragments.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 20000 фрагментов металла.",
+        "en": "Gather 20000 metal fragments."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Metal",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1123_gather",
+          "Type": "Gather",
+          "Target": "metal.fragments",
+          "TargetCount": 20000,
+          "Description": "Gather metal fragments",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите фрагменты металла",
+            "en": "Gather metal fragments"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Scrap",
+          "PrizeType": "Item",
+          "ItemShortName": "scrap",
+          "ItemAmount": 400
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 5610
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 11723
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1124,
+      "QuestDisplayName": "Metal Collector IV",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Сбор фрагментов IV",
+        "en": "Metal Collector IV"
+      },
+      "QuestDescription": "Push your metal reserve to industrial scale.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Разгоните запас металла до промышленного уровня.",
+        "en": "Push your metal reserve to industrial scale."
+      },
+      "QuestMissions": "Gather 50000 metal fragments.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 50000 фрагментов металла.",
+        "en": "Gather 50000 metal fragments."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Metal",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1124_gather",
+          "Type": "Gather",
+          "Target": "metal.fragments",
+          "TargetCount": 50000,
+          "Description": "Gather metal fragments",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите фрагменты металла",
+            "en": "Gather metal fragments"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Scrap",
+          "PrizeType": "Item",
+          "ItemShortName": "scrap",
+          "ItemAmount": 800
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 3426
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 9539
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1125,
+      "QuestDisplayName": "Metal Collector V",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Сбор фрагментов V",
+        "en": "Metal Collector V"
+      },
+      "QuestDescription": "Finish the ultimate metal stockpile.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Завершите максимальный запас фрагментов металла.",
+        "en": "Finish the ultimate metal stockpile."
+      },
+      "QuestMissions": "Gather 100000 metal fragments.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 100000 фрагментов металла.",
+        "en": "Gather 100000 metal fragments."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Metal",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1125_gather",
+          "Type": "Gather",
+          "Target": "metal.fragments",
+          "TargetCount": 100000,
+          "Description": "Gather metal fragments",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите фрагменты металла",
+            "en": "Gather metal fragments"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Scrap",
+          "PrizeType": "Item",
+          "ItemShortName": "scrap",
+          "ItemAmount": 1600
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 1242
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 7355
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1131,
+      "QuestDisplayName": "Scrap Collector I",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Сбор скрапа I",
+        "en": "Scrap Collector I"
+      },
+      "QuestDescription": "Bring home a first batch of scrap.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Принесите первую партию скрапа.",
+        "en": "Bring home a first batch of scrap."
+      },
+      "QuestMissions": "Gather 5000 scrap.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 5000 скрапа.",
+        "en": "Gather 5000 scrap."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Scrap",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1131_gather",
+          "Type": "Gather",
+          "Target": "scrap",
+          "TargetCount": 5000,
+          "Description": "Gather scrap",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите скрап",
+            "en": "Gather scrap"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Low Grade Fuel",
+          "PrizeType": "Item",
+          "ItemShortName": "lowgradefuel",
+          "ItemAmount": 50
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 7139
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 13252
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1132,
+      "QuestDisplayName": "Scrap Collector II",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Сбор скрапа II",
+        "en": "Scrap Collector II"
+      },
+      "QuestDescription": "Expand your scrap route.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Расширьте маршрут по сбору скрапа.",
+        "en": "Expand your scrap route."
+      },
+      "QuestMissions": "Gather 10000 scrap.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 10000 скрапа.",
+        "en": "Gather 10000 scrap."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Scrap",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1132_gather",
+          "Type": "Gather",
+          "Target": "scrap",
+          "TargetCount": 10000,
+          "Description": "Gather scrap",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите скрап",
+            "en": "Gather scrap"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Low Grade Fuel",
+          "PrizeType": "Item",
+          "ItemShortName": "lowgradefuel",
+          "ItemAmount": 100
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 4955
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 11068
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1133,
+      "QuestDisplayName": "Scrap Collector III",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Сбор скрапа III",
+        "en": "Scrap Collector III"
+      },
+      "QuestDescription": "Bring in a serious recycler run.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Сделайте серьезный заход на переработку.",
+        "en": "Bring in a serious recycler run."
+      },
+      "QuestMissions": "Gather 20000 scrap.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 20000 скрапа.",
+        "en": "Gather 20000 scrap."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Scrap",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1133_gather",
+          "Type": "Gather",
+          "Target": "scrap",
+          "TargetCount": 20000,
+          "Description": "Gather scrap",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите скрап",
+            "en": "Gather scrap"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Low Grade Fuel",
+          "PrizeType": "Item",
+          "ItemShortName": "lowgradefuel",
+          "ItemAmount": 200
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 2771
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 8884
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1134,
+      "QuestDisplayName": "Scrap Collector IV",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Сбор скрапа IV",
+        "en": "Scrap Collector IV"
+      },
+      "QuestDescription": "Keep the recycler busy and the scrap flowing.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Поддерживайте стабильный приток скрапа.",
+        "en": "Keep the recycler busy and the scrap flowing."
+      },
+      "QuestMissions": "Gather 50000 scrap.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 50000 скрапа.",
+        "en": "Gather 50000 scrap."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Scrap",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1134_gather",
+          "Type": "Gather",
+          "Target": "scrap",
+          "TargetCount": 50000,
+          "Description": "Gather scrap",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите скрап",
+            "en": "Gather scrap"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Low Grade Fuel",
+          "PrizeType": "Item",
+          "ItemShortName": "lowgradefuel",
+          "ItemAmount": 400
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 19588
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 6700
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1135,
+      "QuestDisplayName": "Scrap Collector V",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Сбор скрапа V",
+        "en": "Scrap Collector V"
+      },
+      "QuestDescription": "Complete a giant scrap haul.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Завершите гигантский сбор скрапа.",
+        "en": "Complete a giant scrap haul."
+      },
+      "QuestMissions": "Gather 100000 scrap.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 100000 скрапа.",
+        "en": "Gather 100000 scrap."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Scrap",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1135_gather",
+          "Type": "Gather",
+          "Target": "scrap",
+          "TargetCount": 100000,
+          "Description": "Gather scrap",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите скрап",
+            "en": "Gather scrap"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Low Grade Fuel",
+          "PrizeType": "Item",
+          "ItemShortName": "lowgradefuel",
+          "ItemAmount": 800
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 17404
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 4516
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 3101,
+      "QuestDisplayName": "Frontier Step 1",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Путь: этап 1",
+        "en": "Frontier Step 1"
+      },
+      "QuestDescription": "Gather wood to begin your journey.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Добудьте дерево, чтобы начать путь.",
+        "en": "Gather wood to begin your journey."
+      },
+      "QuestMissions": "Gather 2500 wood.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 2500 дерева.",
+        "en": "Gather 2500 wood."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Questline",
+      "QuestTabType": "Quests",
+      "QuestlineId": 3001,
+      "QuestlineOrder": 1,
+      "Objectives": [
+        {
+          "ObjectiveId": "3101_wood",
+          "Type": "Gather",
+          "Target": "wood",
+          "TargetCount": 2500,
+          "Description": "Gather wood",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите дерево",
+            "en": "Gather wood"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Stone Pickaxe",
+          "PrizeType": "Item",
+          "ItemShortName": "stone.pickaxe",
+          "ItemAmount": 1
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 17886
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 4998
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 3102,
+      "QuestDisplayName": "Frontier Step 2",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Путь: этап 2",
+        "en": "Frontier Step 2"
+      },
+      "QuestDescription": "Craft the first furnace parts.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Скрафтите первые материалы для печи.",
+        "en": "Craft the first furnace parts."
+      },
+      "QuestMissions": "Craft 2 furnaces.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Скрафтите 2 печи.",
+        "en": "Craft 2 furnaces."
+      },
+      "QuestType": "Craft",
+      "QuestCategory": "Questline",
+      "QuestTabType": "Quests",
+      "QuestlineId": 3001,
+      "QuestlineOrder": 2,
+      "RequiredQuestIds": [
+        3101
+      ],
+      "Objectives": [
+        {
+          "ObjectiveId": "3102_furnace",
+          "Type": "Craft",
+          "Target": "furnace",
+          "TargetCount": 2,
+          "Description": "Craft furnaces",
+          "DescriptionMultiLanguage": {
+            "ru": "Скрафтите печи",
+            "en": "Craft furnaces"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Metal Fragments",
+          "PrizeType": "Item",
+          "ItemShortName": "metal.fragments",
+          "ItemAmount": 500
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 15702
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 2814
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 3103,
+      "QuestDisplayName": "Frontier Step 3",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Путь: этап 3",
+        "en": "Frontier Step 3"
+      },
+      "QuestDescription": "Submit metal fragments to the camp engineer.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Сдайте фрагменты металла инженеру лагеря.",
+        "en": "Submit metal fragments to the camp engineer."
+      },
+      "QuestMissions": "Submit 500 metal fragments.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Сдайте 500 фрагментов металла.",
+        "en": "Submit 500 metal fragments."
+      },
+      "QuestType": "Delivery",
+      "QuestCategory": "Questline",
+      "QuestTabType": "Quests",
+      "QuestlineId": 3001,
+      "QuestlineOrder": 3,
+      "RequiredQuestIds": [
+        3102
+      ],
+      "Objectives": [
+        {
+          "ObjectiveId": "3103_submit_metal",
+          "Type": "Delivery",
+          "Target": "metal.fragments",
+          "TargetCount": 500,
+          "Description": "Submit metal fragments",
+          "DescriptionMultiLanguage": {
+            "ru": "Сдайте фрагменты металла",
+            "en": "Submit metal fragments"
+          },
+          "SubmissionRequired": true
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Revolver",
+          "PrizeType": "Item",
+          "ItemShortName": "pistol.revolver",
+          "ItemAmount": 1
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 13518
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 19631
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 3201,
+      "QuestDisplayName": "Base Builder: Foundations",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Строитель базы: фундаменты",
+        "en": "Base Builder: Foundations"
+      },
+      "QuestDescription": "Lay down the first foundations of your base.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Заложите первые фундаменты своей базы.",
+        "en": "Lay down the first foundations of your base."
+      },
+      "QuestMissions": "Place 10 foundations.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Поставьте 10 фундаментов.",
+        "en": "Place 10 foundations."
+      },
+      "QuestType": "Deploy",
+      "QuestCategory": "Base Builder",
+      "QuestTabType": "Quests",
+      "Icon": "building.planner",
+      "QuestlineId": 3002,
+      "QuestlineOrder": 1,
+      "Objectives": [
+        {
+          "ObjectiveId": "3201_deploy",
+          "Type": "Deploy",
+          "Target": "foundation",
+          "TargetCount": 10,
+          "Description": "Place foundations",
+          "DescriptionMultiLanguage": {
+            "ru": "Поставьте фундаменты",
+            "en": "Place foundations"
+          },
+          "MatchMode": "contains",
+          "Icon": "building.planner"
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Wood",
+          "PrizeType": "Item",
+          "ItemShortName": "wood",
+          "ItemAmount": 3000
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 8497
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 14610
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 3202,
+      "QuestDisplayName": "Base Builder: Tool Cupboard",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Строитель базы: шкаф",
+        "en": "Base Builder: Tool Cupboard"
+      },
+      "QuestDescription": "Secure the base with a tool cupboard.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Защитите базу шкафом с инструментами.",
+        "en": "Secure the base with a tool cupboard."
+      },
+      "QuestMissions": "Place a tool cupboard.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Поставьте шкаф.",
+        "en": "Place a tool cupboard."
+      },
+      "QuestType": "Deploy",
+      "QuestCategory": "Base Builder",
+      "QuestTabType": "Quests",
+      "Icon": "cupboard.tool",
+      "QuestlineId": 3002,
+      "QuestlineOrder": 2,
+      "RequiredQuestIds": [
+        3201
+      ],
+      "Objectives": [
+        {
+          "ObjectiveId": "3202_deploy",
+          "Type": "Deploy",
+          "Target": "cupboard.tool",
+          "TargetCount": 1,
+          "Description": "Place a tool cupboard",
+          "DescriptionMultiLanguage": {
+            "ru": "Поставьте шкаф",
+            "en": "Place a tool cupboard"
+          },
+          "MatchMode": "contains",
+          "Icon": "cupboard.tool"
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Stone",
+          "PrizeType": "Item",
+          "ItemShortName": "stones",
+          "ItemAmount": 3000
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 6313
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 12426
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 3203,
+      "QuestDisplayName": "Base Builder: Workbench 1",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Строитель базы: верстак 1",
+        "en": "Base Builder: Workbench 1"
+      },
+      "QuestDescription": "Set up the first workbench for crafting.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Установите первый верстак для крафта.",
+        "en": "Set up the first workbench for crafting."
+      },
+      "QuestMissions": "Place a level 1 workbench.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Поставьте верстак 1 уровня.",
+        "en": "Place a level 1 workbench."
+      },
+      "QuestType": "Deploy",
+      "QuestCategory": "Base Builder",
+      "QuestTabType": "Quests",
+      "Icon": "workbench1",
+      "QuestlineId": 3002,
+      "QuestlineOrder": 3,
+      "RequiredQuestIds": [
+        3202
+      ],
+      "Objectives": [
+        {
+          "ObjectiveId": "3203_deploy",
+          "Type": "Deploy",
+          "Target": "workbench1",
+          "TargetCount": 1,
+          "Description": "Place a level 1 workbench",
+          "DescriptionMultiLanguage": {
+            "ru": "Поставьте верстак 1 уровня",
+            "en": "Place a level 1 workbench"
+          },
+          "MatchMode": "contains",
+          "Icon": "workbench1"
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Metal Fragments",
+          "PrizeType": "Item",
+          "ItemShortName": "metal.fragments",
+          "ItemAmount": 500
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 4129
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 10242
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 3204,
+      "QuestDisplayName": "Base Builder: Workbench 2",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Строитель базы: верстак 2",
+        "en": "Base Builder: Workbench 2"
+      },
+      "QuestDescription": "Upgrade your production line with a better bench.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Улучшите производство новым верстаком.",
+        "en": "Upgrade your production line with a better bench."
+      },
+      "QuestMissions": "Place a level 2 workbench.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Поставьте верстак 2 уровня.",
+        "en": "Place a level 2 workbench."
+      },
+      "QuestType": "Deploy",
+      "QuestCategory": "Base Builder",
+      "QuestTabType": "Quests",
+      "Icon": "workbench2",
+      "QuestlineId": 3002,
+      "QuestlineOrder": 4,
+      "RequiredQuestIds": [
+        3203
+      ],
+      "Objectives": [
+        {
+          "ObjectiveId": "3204_deploy",
+          "Type": "Deploy",
+          "Target": "workbench2",
+          "TargetCount": 1,
+          "Description": "Place a level 2 workbench",
+          "DescriptionMultiLanguage": {
+            "ru": "Поставьте верстак 2 уровня",
+            "en": "Place a level 2 workbench"
+          },
+          "MatchMode": "contains",
+          "Icon": "workbench2"
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Metal Fragments",
+          "PrizeType": "Item",
+          "ItemShortName": "metal.fragments",
+          "ItemAmount": 1000
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 1945
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 8058
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 3205,
+      "QuestDisplayName": "Base Builder: Workbench 3",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Строитель базы: верстак 3",
+        "en": "Base Builder: Workbench 3"
+      },
+      "QuestDescription": "Finish the crafting chain with the top bench.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Завершите цепочку крафта топовым верстаком.",
+        "en": "Finish the crafting chain with the top bench."
+      },
+      "QuestMissions": "Place a level 3 workbench.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Поставьте верстак 3 уровня.",
+        "en": "Place a level 3 workbench."
+      },
+      "QuestType": "Deploy",
+      "QuestCategory": "Base Builder",
+      "QuestTabType": "Quests",
+      "Icon": "workbench3",
+      "QuestlineId": 3002,
+      "QuestlineOrder": 5,
+      "RequiredQuestIds": [
+        3204
+      ],
+      "Objectives": [
+        {
+          "ObjectiveId": "3205_deploy",
+          "Type": "Deploy",
+          "Target": "workbench3",
+          "TargetCount": 1,
+          "Description": "Place a level 3 workbench",
+          "DescriptionMultiLanguage": {
+            "ru": "Поставьте верстак 3 уровня",
+            "en": "Place a level 3 workbench"
+          },
+          "MatchMode": "contains",
+          "Icon": "workbench3"
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Scrap",
+          "PrizeType": "Item",
+          "ItemShortName": "scrap",
+          "ItemAmount": 300
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 18762
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 5874
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 3206,
+      "QuestDisplayName": "Base Builder: Wooden Door",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Строитель базы: деревянная дверь",
+        "en": "Base Builder: Wooden Door"
+      },
+      "QuestDescription": "Close off the entrance with a wooden door.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Закройте вход деревянной дверью.",
+        "en": "Close off the entrance with a wooden door."
+      },
+      "QuestMissions": "Place a wooden door.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Поставьте деревянную дверь.",
+        "en": "Place a wooden door."
+      },
+      "QuestType": "Deploy",
+      "QuestCategory": "Base Builder",
+      "QuestTabType": "Quests",
+      "Icon": "door.hinged.wood",
+      "QuestlineId": 3002,
+      "QuestlineOrder": 6,
+      "RequiredQuestIds": [
+        3205
+      ],
+      "Objectives": [
+        {
+          "ObjectiveId": "3206_deploy",
+          "Type": "Deploy",
+          "Target": "door.hinged.wood",
+          "TargetCount": 1,
+          "Description": "Place a wooden door",
+          "DescriptionMultiLanguage": {
+            "ru": "Поставьте деревянную дверь",
+            "en": "Place a wooden door"
+          },
+          "MatchMode": "contains",
+          "Icon": "door.hinged.wood"
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Wood",
+          "PrizeType": "Item",
+          "ItemShortName": "wood",
+          "ItemAmount": 1000
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 16578
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 3690
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 3207,
+      "QuestDisplayName": "Base Builder: Sheet Door",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Строитель базы: железная дверь",
+        "en": "Base Builder: Sheet Door"
+      },
+      "QuestDescription": "Upgrade the entrance with a sheet metal door.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Укрепите вход железной дверью.",
+        "en": "Upgrade the entrance with a sheet metal door."
+      },
+      "QuestMissions": "Place a sheet metal door.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Поставьте железную дверь.",
+        "en": "Place a sheet metal door."
+      },
+      "QuestType": "Deploy",
+      "QuestCategory": "Base Builder",
+      "QuestTabType": "Quests",
+      "Icon": "door.hinged.metal",
+      "QuestlineId": 3002,
+      "QuestlineOrder": 7,
+      "RequiredQuestIds": [
+        3206
+      ],
+      "Objectives": [
+        {
+          "ObjectiveId": "3207_deploy",
+          "Type": "Deploy",
+          "Target": "door.hinged.metal",
+          "TargetCount": 1,
+          "Description": "Place a sheet metal door",
+          "DescriptionMultiLanguage": {
+            "ru": "Поставьте железную дверь",
+            "en": "Place a sheet metal door"
+          },
+          "MatchMode": "contains",
+          "Icon": "door.hinged.metal"
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Metal Fragments",
+          "PrizeType": "Item",
+          "ItemShortName": "metal.fragments",
+          "ItemAmount": 750
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 14394
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 1506
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 3208,
+      "QuestDisplayName": "Base Builder: Armored Door",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Строитель базы: МВК дверь",
+        "en": "Base Builder: Armored Door"
+      },
+      "QuestDescription": "Finish your entrance with an armored door.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Завершите укрепление входа МВК дверью.",
+        "en": "Finish your entrance with an armored door."
+      },
+      "QuestMissions": "Place an armored door.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Поставьте МВК дверь.",
+        "en": "Place an armored door."
+      },
+      "QuestType": "Deploy",
+      "QuestCategory": "Base Builder",
+      "QuestTabType": "Quests",
+      "Icon": "door.hinged.toptier",
+      "QuestlineId": 3002,
+      "QuestlineOrder": 8,
+      "RequiredQuestIds": [
+        3207
+      ],
+      "Objectives": [
+        {
+          "ObjectiveId": "3208_deploy",
+          "Type": "Deploy",
+          "Target": "door.hinged.toptier",
+          "TargetCount": 1,
+          "Description": "Place an armored door",
+          "DescriptionMultiLanguage": {
+            "ru": "Поставьте МВК дверь",
+            "en": "Place an armored door"
+          },
+          "MatchMode": "contains",
+          "Icon": "door.hinged.toptier"
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "HQM",
+          "PrizeType": "Item",
+          "ItemShortName": "metal.refined",
+          "ItemAmount": 25
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 12210
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 18323
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    }
+  ]
+}

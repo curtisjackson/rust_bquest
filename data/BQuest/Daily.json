@@ -1,0 +1,112 @@
+{
+  "DailyQuests": [
+    {
+      "QuestID": 2001,
+      "QuestDisplayName": "Daily Lumberjack",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Ежедневный лесоруб",
+        "en": "Daily Lumberjack"
+      },
+      "QuestDescription": "Gather wood for the camp.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Добудьте дерево для лагеря.",
+        "en": "Gather wood for the camp."
+      },
+      "QuestMissions": "Gather 5000 wood.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Соберите 5000 дерева.",
+        "en": "Gather 5000 wood."
+      },
+      "QuestType": "Gather",
+      "QuestCategory": "Daily",
+      "QuestTabType": "Daily",
+      "Objectives": [
+        {
+          "ObjectiveId": "2001_wood",
+          "Type": "Gather",
+          "Target": "wood",
+          "TargetCount": 5000,
+          "Description": "Gather wood",
+          "DescriptionMultiLanguage": {
+            "ru": "Соберите дерево",
+            "en": "Gather wood"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Scrap",
+          "PrizeType": "Item",
+          "ItemShortName": "scrap",
+          "ItemAmount": 125
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 7159
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 13272
+        }
+      ],
+      "IsRepeatable": true,
+      "Cooldown": 3600
+    },
+    {
+      "QuestID": 2002,
+      "QuestDisplayName": "Daily Crafter",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Ежедневный крафтер",
+        "en": "Daily Crafter"
+      },
+      "QuestDescription": "Craft resources for the workshop.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Скрафтите ресурсы для мастерской.",
+        "en": "Craft resources for the workshop."
+      },
+      "QuestMissions": "Craft 10 bandages.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Скрафтите 10 бинтов.",
+        "en": "Craft 10 bandages."
+      },
+      "QuestType": "Craft",
+      "QuestCategory": "Daily",
+      "QuestTabType": "Daily",
+      "Objectives": [
+        {
+          "ObjectiveId": "2002_bandage",
+          "Type": "Craft",
+          "Target": "bandage",
+          "TargetCount": 10,
+          "Description": "Craft bandages",
+          "DescriptionMultiLanguage": {
+            "ru": "Создайте бинты",
+            "en": "Craft bandages"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Low Grade Fuel",
+          "PrizeType": "Item",
+          "ItemShortName": "lowgradefuel",
+          "ItemAmount": 50
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 4975
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 11088
+        }
+      ],
+      "IsRepeatable": true,
+      "Cooldown": 3600
+    }
+  ]
+}
