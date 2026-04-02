@@ -106,15 +106,16 @@ namespace Oxide.Plugins
             public bool useWipe = true;
             public bool useWipePermission = true;
             public string questListDataName = "Quest";
+            [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
             public List<string> questListProgress = new List<string> { "qlist", "quest" };
             public bool sandNotifyAllPlayer = false;
             public bool UseSkillTreeIgnoreHooks = false;
-            public int questCount = 3;
+            public int questCount = 999;
             public bool EnableAnimations = true;
             public string DefaultNotificationMode = "ToastAndChat";
             public string NotificationPosition = "TopRight";
             public int CooldownListLimit = 5;
-            public int TrackedQuestLimit = 1;
+            public int TrackedQuestLimit = 10;
             public string UITheme = "Golden";
         }
 
@@ -279,7 +280,7 @@ namespace Oxide.Plugins
             public Dictionary<long, ActiveQuestRecord> ActiveQuests = new Dictionary<long, ActiveQuestRecord>();
             public HashSet<long> CompletedQuests = new HashSet<long>();
             public Dictionary<long, double> Cooldowns = new Dictionary<long, double>();
-            public long TrackedQuestId;
+            public List<long> TrackedQuestIds = new List<long>();
             public NotificationSettings NotificationSettings = new NotificationSettings();
             public Dictionary<long, bool> ClaimedRewards = new Dictionary<long, bool>();
         }
@@ -313,6 +314,7 @@ namespace Oxide.Plugins
             public bool FilterExpanded;
             public int Page;
             public int MiniPage;
+            public float ScrollPos = 1f;
             public long SelectedQuestId;
             public long SelectedQuestlineId;
             public bool MainOpen;
@@ -610,13 +612,13 @@ namespace Oxide.Plugins
                 ["Filter.Started"] = "Started",
                 ["Filter.ReadyToClaim"] = "Ready to Claim",
                 ["Filter.Completed"] = "Completed",
-                ["Filter.Locked"] = "Locked",
+                ["Filter.Tracked"] = "Tracked",
                 ["Filter.OnCooldown"] = "On Cooldown",
                 ["Status.Available"] = "Available",
                 ["Status.Started"] = "Started",
                 ["Status.ReadyToClaim"] = "Ready to Claim",
                 ["Status.Completed"] = "Completed",
-                ["Status.Locked"] = "Locked",
+                ["Status.Tracked"] = "Tracked",
                 ["Status.OnCooldown"] = "On Cooldown",
                 ["Action.Start"] = "Start Quest",
                 ["Action.Cancel"] = "Cancel Quest",
@@ -672,7 +674,8 @@ namespace Oxide.Plugins
                 ["Msg.ResetDone"] = "Quest progress has been reset for player {0}.",
                 ["Msg.StatQueued"] = "Statistics publishing started.",
                 ["Msg.UnknownQuest"] = "Quest not found.",
-                ["Msg.NoActiveQuests"] = "No active quests."
+                ["Msg.NoActiveQuests"] = "No active quests.",
+                ["Msg.TrackedQuestsLimit"] = "You have reached the tracked quests limit ({0})."
             }, this, "en");
 
             lang.RegisterMessages(new Dictionary<string, string>
@@ -686,13 +689,13 @@ namespace Oxide.Plugins
                 ["Filter.Started"] = "Активные",
                 ["Filter.ReadyToClaim"] = "Готовы",
                 ["Filter.Completed"] = "Завершенные",
-                ["Filter.Locked"] = "Заблокированные",
+                ["Filter.Tracked"] = "Отслеживаемые",
                 ["Filter.OnCooldown"] = "Откат",
                 ["Status.Available"] = "Доступен",
                 ["Status.Started"] = "Активен",
                 ["Status.ReadyToClaim"] = "Готов к сдаче",
                 ["Status.Completed"] = "Завершен",
-                ["Status.Locked"] = "Заблокирован",
+                ["Status.Tracked"] = "Отслеживается",
                 ["Status.OnCooldown"] = "На откате",
                 ["Action.Start"] = "Начать квест",
                 ["Action.Cancel"] = "Отменить квест",
@@ -748,7 +751,8 @@ namespace Oxide.Plugins
                 ["Msg.ResetDone"] = "Прогресс квестов сброшен для игрока {0}.",
                 ["Msg.StatQueued"] = "Публикация статистики запущена.",
                 ["Msg.UnknownQuest"] = "Квест не найден.",
-                ["Msg.NoActiveQuests"] = "Нет активных квестов."
+                ["Msg.NoActiveQuests"] = "Нет активных квестов.",
+                ["Msg.TrackedQuestsLimit"] = "Достигнут лимит отслеживаемых квестов ({0})."
             }, this, "ru");
         }
 
@@ -918,12 +922,14 @@ namespace Oxide.Plugins
             var state = GetUiState(player.userID);
             var refreshSidebar = true;
             var refreshDetails = true;
+            var oldSelectedId = state.SelectedQuestId;
 
             switch (action)
             {
                 case "tab":
                     state.Tab = value;
                     state.Page = 0;
+                    state.ScrollPos = 1f;
                     state.FilterExpanded = false;
                     if (value == "Questlines")
                     {
@@ -947,6 +953,7 @@ namespace Oxide.Plugins
                 case "filter":
                     state.Filter = value;
                     state.Page = 0;
+                    state.ScrollPos = 1f;
                     state.FilterExpanded = false;
                     break;
                 case "togglefilter":
@@ -959,6 +966,7 @@ namespace Oxide.Plugins
                     state.FilterExpanded = false;
                     break;
                 case "togglegroup":
+                    CalculateScrollPosForGroup(player, value); // ФИКСАЦИЯ СКРОЛЛА
                     ToggleQuestGroup(state, value);
                     state.FilterExpanded = false;
                     refreshDetails = false;
@@ -966,6 +974,7 @@ namespace Oxide.Plugins
                 case "select":
                     state.SelectedQuestId = ToLong(value);
                     state.FilterExpanded = false;
+                    refreshSidebar = false; // ХИРУРГИЧЕСКОЕ ОБНОВЛЕНИЕ
                     break;
                 case "selectline":
                     state.SelectedQuestlineId = ToLong(value);
@@ -980,6 +989,7 @@ namespace Oxide.Plugins
                     state.Tab = "Questlines";
                     state.SelectedQuestId = ToLong(value);
                     state.FilterExpanded = false;
+                    refreshSidebar = false; // ХИРУРГИЧЕСКОЕ ОБНОВЛЕНИЕ
                     QuestDefinition selectedQuest;
                     if (_allQuestsById.TryGetValue(state.SelectedQuestId, out selectedQuest))
                     {
@@ -1019,7 +1029,7 @@ namespace Oxide.Plugins
                     SetTrackedQuest(player, ToLong(value));
                     break;
                 case "untrack":
-                    SetTrackedQuest(player, 0L);
+                    SetTrackedQuest(player, ToLong(value));
                     break;
                 case "claim":
                     ClaimQuest(player, ToLong(value));
@@ -1062,10 +1072,155 @@ namespace Oxide.Plugins
                     break;
             }
 
+            if (!refreshSidebar && (action == "select" || action == "linequest"))
+            {
+                SurgicalUpdateList(player, oldSelectedId, state.SelectedQuestId);
+            }
+
             RefreshMainUi(player, refreshSidebar, refreshDetails);
             if (state.MiniOpen)
             {
                 RenderMiniUi(player);
+            }
+        }
+
+        private void SurgicalUpdateList(BasePlayer player, long oldId, long newId)
+        {
+            var state = GetUiState(player.userID);
+            var scrollName = MainUiName + ".Root.Sidebar.List.Viewport.Scroll";
+            
+            // Если мы в цепочках, расчет Y сложнее, поэтому проще перерисовать детали, 
+            // а список обновить точечно через удаление и добавление конкретных элементов.
+            
+            if (state.Tab == "Questlines")
+            {
+                UpdateSurgicalQuestlineRow(player, oldId, false);
+                UpdateSurgicalQuestlineRow(player, newId, true);
+            }
+            else
+            {
+                UpdateSurgicalQuestRow(player, oldId, false);
+                UpdateSurgicalQuestRow(player, newId, true);
+            }
+        }
+
+        private void UpdateSurgicalQuestRow(BasePlayer player, long questId, bool isSelected)
+        {
+            if (questId == 0) return;
+            var quest = FindQuest(questId);
+            if (quest == null) return;
+
+            var state = GetUiState(player.userID);
+            var scrollName = MainUiName + ".Root.Sidebar.List.Viewport.Scroll";
+            var rowName = scrollName + ".Quest." + quest.QuestID;
+            
+            CuiHelper.DestroyUi(player, rowName);
+
+            float y = 10f;
+            var quests = GetFilteredQuests(player, state.Tab, state.Filter).ToList();
+            var groups = quests.GroupBy(x => x.QuestCategory).ToList();
+
+            foreach (var group in groups)
+            {
+                bool isCollapsed = IsQuestGroupCollapsed(state, state.Tab, group.Key);
+                // Пропускаем высоту заголовка
+                float currentHeaderY = y;
+                y += 26f;
+
+                if (!isCollapsed)
+                {
+                    foreach (var q in group)
+                    {
+                        if (q.QuestID == questId)
+                        {
+                            var container = new CuiElementContainer();
+                            float tempY = y;
+                            RenderQuestRow(container, player, scrollName, q, isSelected, ref tempY);
+                            CuiHelper.AddUi(player, container);
+                            return;
+                        }
+                        y += 60f;
+                    }
+                }
+                
+                y += 8f;
+            }
+        }
+
+        private void UpdateSurgicalQuestlineRow(BasePlayer player, long questId, bool isSelected)
+        {
+            if (questId == 0) return;
+            var quest = FindQuest(questId);
+            if (quest == null) return;
+
+            var state = GetUiState(player.userID);
+            var scrollName = MainUiName + ".Root.Sidebar.List.Viewport.Scroll";
+            
+            var line = _questlineCatalog.Questlines.FirstOrDefault(x => x.StageQuestIds.Contains(questId));
+            if (line == null) return;
+
+            var rowName = scrollName + ".Line." + line.QuestlineId + "." + quest.QuestID;
+            CuiHelper.DestroyUi(player, rowName);
+
+            float y = 10f;
+            foreach (var l in _questlineCatalog.Questlines)
+            {
+                // Пропускаем высоту заголовка квестлайна
+                y += 28f;
+
+                for (int i = 0; i < l.StageQuestIds.Count; i++)
+                {
+                    var q = FindQuest(l.StageQuestIds[i]);
+                    if (q == null) continue;
+
+                    if (q.QuestID == questId)
+                    {
+                        var container = new CuiElementContainer();
+                        float tempY = y;
+                        RenderQuestlineRow(container, player, scrollName, l, q, isSelected, i, ref tempY);
+                        CuiHelper.AddUi(player, container);
+                        return;
+                    }
+                    y += 60f;
+                }
+                
+                y += 8f;
+            }
+        }
+
+        private void CalculateScrollPosForGroup(BasePlayer player, string groupKey)
+        {
+            var state = GetUiState(player.userID);
+            var quests = GetFilteredQuests(player, state.Tab, state.Filter).ToList();
+            var groups = quests.GroupBy(x => x.QuestCategory).ToList();
+
+            float currentY = 10f;
+            float targetY = -1f;
+            float totalHeightBefore = 10f;
+
+            foreach (var group in groups)
+            {
+                var key = GetQuestGroupStateKey(state.Tab, group.Key);
+                if (key == groupKey)
+                {
+                    targetY = totalHeightBefore;
+                }
+                
+                totalHeightBefore += 26f;
+                if (!IsQuestGroupCollapsed(state, state.Tab, group.Key))
+                {
+                    totalHeightBefore += group.Count() * 60f;
+                }
+                totalHeightBefore += 8f;
+            }
+
+            totalHeightBefore = Mathf.Max(360f, totalHeightBefore);
+
+            if (targetY >= 0)
+            {
+                // Попробуем сохранить текущую визуальную позицию заголовка. 
+                // В Rust CUI 1.0 - это верх. Нам нужно чтобы ScrollPos соответствовал targetY.
+                state.ScrollPos = Mathf.Clamp01(1f - (targetY / (totalHeightBefore - 360f)));
             }
         }
 
@@ -1152,16 +1307,23 @@ namespace Oxide.Plugins
             }, "Hud", MainUiName);
 
             var rootName = MainUiName + ".Root";
-            AddPanel(container, MainUiName, rootName, GetUiWindowColor(), "0.05 0.10", "0.95 0.96");
-            AddLine(container, MainUiName, GetUiGoldFrameColor(), "0.05 0.959", "0.95 0.960");
-            AddLine(container, MainUiName, GetUiGoldFrameColor(), "0.05 0.100", "0.95 0.101");
-            AddLine(container, MainUiName, GetUiGoldFrameColor(), "0.050 0.10", "0.051 0.96");
-            AddLine(container, MainUiName, GetUiGoldFrameColor(), "0.949 0.10", "0.950 0.96");
-            AddLabel(container, rootName, GetMsg("Title", player.UserIDString), 15, _config.Theme.Text, "0.015 0.94", "0.16 0.98", TextAnchor.MiddleLeft);
-            AddStyledButton(container, rootName, GetUiSoftColor(), "X", 12, GetUiGoldColor(), "0.94 0.94", "0.98 0.98", "CloseMainUI");
-
+            // Root теперь невидимый и на весь экран, чтобы не сжимать дочерние окна
+            AddPanel(container, MainUiName, rootName, "0 0 0 0", "0 0", "1 1");
+            
+            // Рисуем ПЛОТНЫЙ фон отдельным элементом (ниже окон)
+            var bgName = rootName + ".Background";
+            // Устанавливаем ЕДИНЫЙ отступ 0.003 со всех сторон (справа чуть плотнее - 0.899)
+            AddPanel(container, rootName, bgName, GetUiWindowColor(), "0.074 0.131", "0.899 0.894");
+            AddLine(container, bgName, GetUiGoldFrameColor(), "0 0.998", "1 1"); // Верх
+            AddLine(container, bgName, GetUiGoldFrameColor(), "0 0", "1 0.002"); // Низ
+            AddLine(container, bgName, GetUiGoldFrameColor(), "0 0", "0.001 1"); // Лево
+            AddLine(container, bgName, GetUiGoldFrameColor(), "0.999 0", "1 1"); // Право
+            
             RenderQuestList(container, player, rootName);
             RenderQuestDetails(container, player, rootName);
+
+            // Кнопка закрытия: выровнена по новому правому верхнему краю
+            AddStyledButton(container, MainUiName, GetUiSoftColor(), "X", 11, GetUiGoldColor(), "0.877 0.862", "0.897 0.892", "CloseMainUI");
 
             CuiHelper.AddUi(player, container);
 
@@ -1183,19 +1345,22 @@ namespace Oxide.Plugins
                 var isActive = string.Equals(state.Tab, tabs[i], StringComparison.OrdinalIgnoreCase);
                 var tabMin = startX + (i * 0.29f);
                 var tabMax = tabMin + 0.22f;
-                AddLabel(container, sidebar, GetMsg("Tab." + tabs[i], player.UserIDString), 12, isActive ? GetUiGoldColor() : _config.Theme.TextMuted, string.Format(CultureInfo.InvariantCulture, "{0} 0.72", tabMin), string.Format(CultureInfo.InvariantCulture, "{0} 0.78", tabMax), TextAnchor.MiddleCenter);
-                AddOverlayButton(container, sidebar, "UI_Handler tab " + tabs[i], string.Format(CultureInfo.InvariantCulture, "{0} 0.72", tabMin), string.Format(CultureInfo.InvariantCulture, "{0} 0.78", tabMax));
+                // Табы подняты с 0.72-0.78 на 0.78-0.84
+                AddLabel(container, sidebar, GetMsg("Tab." + tabs[i], player.UserIDString), 12, isActive ? GetUiGoldColor() : _config.Theme.TextMuted, string.Format(CultureInfo.InvariantCulture, "{0} 0.78", tabMin), string.Format(CultureInfo.InvariantCulture, "{0} 0.84", tabMax), TextAnchor.MiddleCenter);
+                AddOverlayButton(container, sidebar, "UI_Handler tab " + tabs[i], string.Format(CultureInfo.InvariantCulture, "{0} 0.78", tabMin), string.Format(CultureInfo.InvariantCulture, "{0} 0.84", tabMax));
                 if (isActive)
                 {
-                    AddLine(container, sidebar, GetUiGoldColor(), string.Format(CultureInfo.InvariantCulture, "{0} 0.705", tabMin + 0.02f), string.Format(CultureInfo.InvariantCulture, "{0} 0.708", tabMax - 0.02f));
+                    AddLine(container, sidebar, GetUiGoldColor(), string.Format(CultureInfo.InvariantCulture, "{0} 0.765", tabMin + 0.02f), string.Format(CultureInfo.InvariantCulture, "{0} 0.768", tabMax - 0.02f));
                 }
             }
 
-            AddThinPanel(container, sidebar, sidebar + ".Filter", GetUiSoftColor(), GetUiBorderColor(), "0.05 0.63", "0.95 0.68");
+            // Фильтр поднят с 0.63-0.68 на 0.69-0.74
+            AddThinPanel(container, sidebar, sidebar + ".Filter", GetUiSoftColor(), GetUiBorderColor(), "0.05 0.69", "0.95 0.74");
             AddSquarePanel(container, sidebar + ".Filter", sidebar + ".Filter.Icon", "0 0 0 0", 0.05f, 0.50f, 22f);
             AddFilterIcon(container, sidebar + ".Filter.Icon", state.Filter, GetUiGoldColor());
             AddLabel(container, sidebar + ".Filter", GetFilterDisplayText(player, state.Filter), 10, _config.Theme.TextMuted, "0.10 0.10", "0.78 0.90", TextAnchor.MiddleLeft);
-            AddLabel(container, sidebar + ".Filter", state.FilterExpanded ? "^" : "v", 11, _config.Theme.TextMuted, "0.88 0.08", "0.96 0.92", TextAnchor.MiddleCenter);
+            // Заменяем ^ / v на ▸ / ▾ для единообразия с категориями. Размер увеличен до 14.
+            AddLabel(container, sidebar + ".Filter", state.FilterExpanded ? "▾" : "▸", 14, _config.Theme.TextMuted, "0.88 0.08", "0.96 0.92", TextAnchor.MiddleCenter);
             AddOverlayButton(container, sidebar + ".Filter", "UI_Handler togglefilter 1");
 
             if (state.FilterExpanded)
@@ -1209,8 +1374,9 @@ namespace Oxide.Plugins
             var state = GetUiState(player.userID);
             var filters = GetFilterValues();
             var height = filters.Length * 0.048f;
-            var minY = Math.Max(0.26f, 0.63f - height);
-            AddThinPanel(container, parent, parent + ".FilterDropdown", GetUiRowColor(), GetUiBorderColor(), string.Format(CultureInfo.InvariantCulture, "0.05 {0}", minY), "0.95 0.63");
+            // Поднимаем выпадающее меню вместе с фильтром
+            var minY = Math.Max(0.32f, 0.69f - height);
+            AddThinPanel(container, parent, parent + ".FilterDropdown", GetUiRowColor(), GetUiBorderColor(), string.Format(CultureInfo.InvariantCulture, "0.05 {0}", minY), "0.95 0.69");
 
             var y = 0.96f;
             for (var i = 0; i < filters.Length; i++)
@@ -1232,7 +1398,8 @@ namespace Oxide.Plugins
         {
             var state = GetUiState(player.userID);
             var sidebar = parent + ".Sidebar";
-            AddPanel(container, parent, sidebar, GetUiSidebarColor(), "0.03 0.04", "0.33 0.92");
+            // Абсолютные координаты на экране (рассчитаны для сохранения оригинального размера)
+            AddPanel(container, parent, sidebar, GetUiSidebarColor(), "0.077 0.134", "0.347 0.891");
             AddPanel(container, sidebar, sidebar + ".List", GetUiSidebarColor(), "0.04 0.07", "0.96 0.61");
             RenderProfileBlock(container, player, sidebar);
 
@@ -1244,27 +1411,41 @@ namespace Oxide.Plugins
             }
 
             var quests = GetFilteredQuests(player, state.Tab, state.Filter).ToList();
-            AddLine(container, sidebar, GetUiGoldLineColor(), "0.04 0.615", "0.96 0.618");
+            // Поднимаем верхнюю границу списка с 0.61 до 0.67, опускаем нижнюю с 0.07 до 0.01
+            AddPanel(container, sidebar, sidebar + ".List", GetUiSidebarColor(), "0.04 0.01", "0.96 0.67");
+            
+            AddLine(container, sidebar, GetUiGoldLineColor(), "0.04 0.675", "0.96 0.678");
             AddLabel(container, sidebar + ".List", string.Format("{0} ({1})", GetMsg("Tab." + state.Tab, player.UserIDString), quests.Count), 13, _config.Theme.Text, "0.02 0.93", "0.96 0.99", TextAnchor.MiddleLeft);
 
             var viewport = sidebar + ".List.Viewport";
             AddPanel(container, sidebar + ".List", viewport, "0 0 0 0", "0.02 0.03", "0.98 0.91");
 
             var groups = quests.GroupBy(x => x.QuestCategory).ToList();
-            var contentHeight = 14f;
+            float contentHeight = 14f;
+            float selectedY = -1f;
+
             foreach (var group in groups)
             {
+                bool isCollapsed = IsQuestGroupCollapsed(state, state.Tab, group.Key);
                 contentHeight += 26f;
-                if (!IsQuestGroupCollapsed(state, state.Tab, group.Key))
+                if (!isCollapsed)
                 {
-                    contentHeight += group.Count() * 60f;
+                    foreach (var quest in group)
+                    {
+                        if (quest.QuestID == state.SelectedQuestId)
+                        {
+                            selectedY = contentHeight;
+                        }
+                        contentHeight += 60f;
+                    }
                 }
                 contentHeight += 8f;
             }
 
             contentHeight = Mathf.Max(contentHeight, 360f);
+
             var scrollName = viewport + ".Scroll";
-            AddVerticalScrollView(container, viewport, scrollName, contentHeight, 6f);
+            AddVerticalScrollView(container, viewport, scrollName, contentHeight, state.ScrollPos, 6f);
 
             var y = 10f;
             var groupIndex = 0;
@@ -1273,46 +1454,55 @@ namespace Oxide.Plugins
                 var isCollapsed = IsQuestGroupCollapsed(state, state.Tab, group.Key);
                 var groupStateKey = GetQuestGroupStateKey(state.Tab, group.Key);
                 var headerName = scrollName + ".Group." + groupIndex;
+                
                 AddPanel(container, scrollName, headerName, "0 0 0 0", "0 1", "1 1", string.Format(CultureInfo.InvariantCulture, "0 {0}", -(y + 20f)), string.Format(CultureInfo.InvariantCulture, "0 {0}", -y));
                 AddLabel(container, headerName, isCollapsed ? "▸" : "▾", 12, _config.Theme.TextMuted, "0.00 0.05", "0.06 0.95", TextAnchor.MiddleCenter);
                 AddLabel(container, headerName, group.Key, 13, _config.Theme.TextMuted, "0.06 0.00", "0.94 1.00", TextAnchor.MiddleLeft);
                 AddOverlayButton(container, headerName, "UI_Handler togglegroup " + groupStateKey);
+                
                 y += 26f;
 
-                if (isCollapsed)
+                if (!isCollapsed)
                 {
-                    groupIndex++;
-                    continue;
-                }
-
-                foreach (var quest in group)
-                {
-                    var status = GetQuestStatus(player, quest);
-                    var isSelected = state.SelectedQuestId == quest.QuestID;
-                    var rowName = scrollName + ".Quest." + quest.QuestID;
-                    AddPanel(container, scrollName, rowName, GetQuestListRowColor(status, isSelected), "0 1", "1 1", string.Format(CultureInfo.InvariantCulture, "6 {0}", -(y + 52f)), string.Format(CultureInfo.InvariantCulture, "-10 {0}", -y));
-                    AddLine(container, rowName, GetUiBorderColor(), "0 0.985", "1 1");
-                    AddLine(container, rowName, GetUiBorderColor(), "0 0", "1 0.015");
-                    AddLine(container, rowName, GetUiBorderColor(), "0 0", "0.004 1");
-                    AddLine(container, rowName, GetUiBorderColor(), "0.996 0", "1 1");
-                    AddSquarePanel(container, rowName, rowName + ".Icon", "0 0 0 0", 0.09f, 0.50f, 42f);
-                    AddLabel(container, rowName + ".Icon", GetQuestListGlyph(quest), 16, isSelected ? GetUiGoldColor() : _config.Theme.TextMuted, "0 0", "1 1", TextAnchor.MiddleCenter);
-                    AddLabel(container, rowName, GetQuestTitle(player, quest), 13, isSelected ? _config.Theme.Text : "0.88 0.88 0.88 1", "0.19 0.42", "0.72 0.86", TextAnchor.MiddleLeft);
-                    AddLabel(container, rowName, GetQuestListSubtitle(player, quest), 10, _config.Theme.TextMuted, "0.19 0.10", "0.72 0.40", TextAnchor.MiddleLeft);
-                    AddLabel(container, rowName, GetMsg("Status." + status, player.UserIDString), 9, _config.Theme.TextMuted, "0.72 0.54", "0.95 0.84", TextAnchor.MiddleRight);
-                    var rowMeta = GetQuestRowMeta(player, quest);
-                    if (!string.IsNullOrEmpty(rowMeta))
+                    foreach (var quest in group)
                     {
-                        AddLabel(container, rowName, rowMeta, 9, _config.Theme.TextMuted, "0.72 0.12", "0.95 0.40", TextAnchor.MiddleRight);
+                        RenderQuestRow(container, player, scrollName, quest, state.SelectedQuestId == quest.QuestID, ref y);
+                        // RenderQuestRow уже делает y += 60f
                     }
-                    AddOverlayButton(container, rowName, "UI_Handler select " + quest.QuestID);
-                    y += 60f;
                 }
 
+                y += 8f;
                 groupIndex++;
             }
 
             RenderTabs(container, player, parent);
+        }
+
+        private void RenderQuestRow(CuiElementContainer container, BasePlayer player, string parent, QuestDefinition quest, bool isSelected, ref float y)
+        {
+            var status = GetQuestStatus(player, quest);
+            var rowName = parent + ".Quest." + quest.QuestID;
+            
+            AddPanel(container, parent, rowName, GetQuestListRowColor(status, isSelected), "0 1", "1 1", string.Format(CultureInfo.InvariantCulture, "6 {0}", -(y + 52f)), string.Format(CultureInfo.InvariantCulture, "-10 {0}", -y));
+            AddLine(container, rowName, GetUiBorderColor(), "0 0.985", "1 1");
+            AddLine(container, rowName, GetUiBorderColor(), "0 0", "1 0.015");
+            AddLine(container, rowName, GetUiBorderColor(), "0 0", "0.004 1");
+            AddLine(container, rowName, GetUiBorderColor(), "0.996 0", "1 1");
+            
+            AddSquarePanel(container, rowName, rowName + ".Icon", "0 0 0 0", 0.09f, 0.50f, 42f);
+            AddLabel(container, rowName + ".Icon", GetQuestListGlyph(quest), 16, isSelected ? GetUiGoldColor() : _config.Theme.TextMuted, "0 0", "1 1", TextAnchor.MiddleCenter);
+            AddLabel(container, rowName, GetQuestTitle(player, quest), 13, isSelected ? _config.Theme.Text : "0.88 0.88 0.88 1", "0.19 0.42", "0.72 0.86", TextAnchor.MiddleLeft);
+            AddLabel(container, rowName, GetQuestListSubtitle(player, quest), 10, _config.Theme.TextMuted, "0.19 0.10", "0.72 0.40", TextAnchor.MiddleLeft);
+            AddLabel(container, rowName, GetMsg("Status." + status, player.UserIDString), 9, _config.Theme.TextMuted, "0.72 0.54", "0.95 0.84", TextAnchor.MiddleRight);
+            
+            var rowMeta = GetQuestRowMeta(player, quest);
+            if (!string.IsNullOrEmpty(rowMeta))
+            {
+                AddLabel(container, rowName, rowMeta, 9, _config.Theme.TextMuted, "0.72 0.12", "0.95 0.40", TextAnchor.MiddleRight);
+            }
+            
+            AddOverlayButton(container, rowName, "UI_Handler select " + quest.QuestID);
+            y += 60f;
         }
 
         private void RenderQuestlineList(CuiElementContainer container, BasePlayer player, string parent)
@@ -1328,17 +1518,27 @@ namespace Oxide.Plugins
             var lines = _questlineCatalog.Questlines.ToList();
             var viewport = parent + ".Viewport";
             AddPanel(container, parent, viewport, "0 0 0 0", "0.02 0.03", "0.98 0.91");
-            var contentHeight = 12f;
+            float contentHeight = 12f;
+            float selectedY = -1f;
+
             foreach (var line in lines)
             {
                 contentHeight += 28f;
-                contentHeight += Math.Max(1, line.StageQuestIds.Count) * 60f;
+                foreach (var questId in line.StageQuestIds)
+                {
+                    if (questId == state.SelectedQuestId)
+                    {
+                        selectedY = contentHeight;
+                    }
+                    contentHeight += 60f;
+                }
                 contentHeight += 8f;
             }
 
             contentHeight = Mathf.Max(360f, contentHeight);
+
             var scrollName = viewport + ".Scroll";
-            AddVerticalScrollView(container, viewport, scrollName, contentHeight, 6f);
+            AddVerticalScrollView(container, viewport, scrollName, contentHeight, state.ScrollPos, 6f);
 
             var y = 10f;
             foreach (var line in lines)
@@ -1348,47 +1548,54 @@ namespace Oxide.Plugins
                 AddLabel(container, headerName, "▾", 12, _config.Theme.TextMuted, "0.00 0.05", "0.06 0.95", TextAnchor.MiddleCenter);
                 AddLabel(container, headerName, GetQuestlineTitle(player, line), 13, _config.Theme.TextMuted, "0.06 0.00", "0.70 1.00", TextAnchor.MiddleLeft);
                 AddLabel(container, headerName, GetQuestlineProgress(player, line), 11, state.SelectedQuestlineId == line.QuestlineId ? GetUiGoldColor() : _config.Theme.TextMuted, "0.72 0.00", "0.94 1.00", TextAnchor.MiddleRight);
+                
                 y += 28f;
 
                 for (var i = 0; i < line.StageQuestIds.Count; i++)
                 {
                     var quest = FindQuest(line.StageQuestIds[i]);
-                    if (quest == null)
-                    {
-                        continue;
-                    }
+                    if (quest == null) continue;
 
-                    var status = GetQuestStatus(player, quest);
-                    var isSelected = state.SelectedQuestId == quest.QuestID;
-                    var indent = i == 0 ? 6f : 16f;
-                    var rightInset = i == 0 ? -10f : -20f;
-                    var rowName = scrollName + ".Line." + line.QuestlineId + "." + quest.QuestID;
-                    AddPanel(container, scrollName, rowName, GetQuestListRowColor(status, isSelected), "0 1", "1 1", string.Format(CultureInfo.InvariantCulture, "{0} {1}", indent, -(y + 52f)), string.Format(CultureInfo.InvariantCulture, "{0} {1}", rightInset, -y));
-                    AddLine(container, rowName, GetUiBorderColor(), "0 0.985", "1 1");
-                    AddLine(container, rowName, GetUiBorderColor(), "0 0", "1 0.015");
-                    AddLine(container, rowName, GetUiBorderColor(), "0 0", "0.004 1");
-                    AddLine(container, rowName, GetUiBorderColor(), "0.996 0", "1 1");
-                    AddSquarePanel(container, rowName, rowName + ".Icon", "0 0 0 0", 0.09f, 0.50f, 42f);
-                    AddLabel(container, rowName + ".Icon", GetQuestListGlyph(quest), 16, isSelected ? GetUiGoldColor() : _config.Theme.TextMuted, "0 0", "1 1", TextAnchor.MiddleCenter);
-                    AddLabel(container, rowName, GetQuestTitle(player, quest), 13, isSelected ? _config.Theme.Text : "0.88 0.88 0.88 1", "0.19 0.42", "0.72 0.86", TextAnchor.MiddleLeft);
-                    AddLabel(container, rowName, GetQuestListSubtitle(player, quest), 10, _config.Theme.TextMuted, "0.19 0.10", "0.72 0.40", TextAnchor.MiddleLeft);
-                    AddLabel(container, rowName, GetMsg("Status." + status, player.UserIDString), 9, _config.Theme.TextMuted, "0.72 0.54", "0.95 0.84", TextAnchor.MiddleRight);
-                    var rowMeta = GetQuestRowMeta(player, quest);
-                    if (!string.IsNullOrEmpty(rowMeta))
-                    {
-                        AddLabel(container, rowName, rowMeta, 9, _config.Theme.TextMuted, "0.72 0.12", "0.95 0.40", TextAnchor.MiddleRight);
-                    }
-                    AddOverlayButton(container, rowName, "UI_Handler linequest " + quest.QuestID);
-                    y += 60f;
+                    RenderQuestlineRow(container, player, scrollName, line, quest, state.SelectedQuestId == quest.QuestID, i, ref y);
                 }
 
                 y += 8f;
             }
         }
 
+        private void RenderQuestlineRow(CuiElementContainer container, BasePlayer player, string parent, QuestlineDefinition line, QuestDefinition quest, bool isSelected, int index, ref float y)
+        {
+            var status = GetQuestStatus(player, quest);
+            var indent = index == 0 ? 6f : 16f;
+            var rightInset = index == 0 ? -10f : -20f;
+            var rowName = parent + ".Line." + line.QuestlineId + "." + quest.QuestID;
+            
+            AddPanel(container, parent, rowName, GetQuestListRowColor(status, isSelected), "0 1", "1 1", string.Format(CultureInfo.InvariantCulture, "{0} {1}", indent, -(y + 52f)), string.Format(CultureInfo.InvariantCulture, "{0} {1}", rightInset, -y));
+            AddLine(container, rowName, GetUiBorderColor(), "0 0.985", "1 1");
+            AddLine(container, rowName, GetUiBorderColor(), "0 0", "1 0.015");
+            AddLine(container, rowName, GetUiBorderColor(), "0 0", "0.004 1");
+            AddLine(container, rowName, GetUiBorderColor(), "0.996 0", "1 1");
+            
+            AddSquarePanel(container, rowName, rowName + ".Icon", "0 0 0 0", 0.09f, 0.50f, 42f);
+            AddLabel(container, rowName + ".Icon", GetQuestListGlyph(quest), 16, isSelected ? GetUiGoldColor() : _config.Theme.TextMuted, "0 0", "1 1", TextAnchor.MiddleCenter);
+            AddLabel(container, rowName, GetQuestTitle(player, quest), 13, isSelected ? _config.Theme.Text : "0.88 0.88 0.88 1", "0.19 0.42", "0.72 0.86", TextAnchor.MiddleLeft);
+            AddLabel(container, rowName, GetQuestListSubtitle(player, quest), 10, _config.Theme.TextMuted, "0.19 0.10", "0.72 0.40", TextAnchor.MiddleLeft);
+            AddLabel(container, rowName, GetMsg("Status." + status, player.UserIDString), 9, _config.Theme.TextMuted, "0.72 0.54", "0.95 0.84", TextAnchor.MiddleRight);
+            
+            var rowMeta = GetQuestRowMeta(player, quest);
+            if (!string.IsNullOrEmpty(rowMeta))
+            {
+                AddLabel(container, rowName, rowMeta, 9, _config.Theme.TextMuted, "0.72 0.12", "0.95 0.40", TextAnchor.MiddleRight);
+            }
+            
+            AddOverlayButton(container, rowName, "UI_Handler linequest " + quest.QuestID);
+            y += 60f;
+        }
+
         private void RenderQuestDetails(CuiElementContainer container, BasePlayer player, string parent)
         {
-            AddPanel(container, parent, parent + ".Details", GetUiWindowColor(), "0.37 0.04", "0.97 0.92");
+            // Абсолютные координаты на экране (сдвинуты влево для уменьшения разрыва)
+            AddPanel(container, parent, parent + ".Details", GetUiWindowColor(), "0.357 0.134", "0.897 0.891");
 
             var state = GetUiState(player.userID);
             if (state.Tab == "Questlines")
@@ -1440,10 +1647,10 @@ namespace Oxide.Plugins
         {
             var status = GetQuestStatus(player, quest);
             var headerName = parent + ".Header";
-            AddPanel(container, parent, headerName, GetUiWindowColor(), "0.03 0.72", "0.97 0.95");
+            // Расширяем заголовок до 0.01 - 0.99
+            AddPanel(container, parent, headerName, GetUiWindowColor(), "0.01 0.72", "0.99 0.95");
             AddLine(container, headerName, GetUiGoldLineColor(), "0.00 0.00", "1.00 0.003");
-            AddLabel(container, headerName, "< " + GetMsg("Label.Overview", player.UserIDString), 10, _config.Theme.TextMuted, "0.01 0.86", "0.30 0.98", TextAnchor.MiddleLeft);
-            AddOverlayButton(container, headerName, "UI_Handler overview", "0.01 0.84", "0.30 0.98");
+            
             AddSquareThinPanel(container, headerName, headerName + ".Icon", GetUiSoftColor(), GetUiBorderColor(), 0.06f, 0.65f, 48f);
             AddLabel(container, headerName + ".Icon", GetQuestListGlyph(quest), 20, GetUiGoldColor(), "0 0", "1 1", TextAnchor.MiddleCenter);
             AddLabel(container, headerName, GetQuestTitle(player, quest), 22, _config.Theme.Text, "0.12 0.56", "0.70 0.84", TextAnchor.MiddleLeft);
@@ -1454,7 +1661,8 @@ namespace Oxide.Plugins
             }
             AddThinPanel(container, headerName, headerName + ".Badge", GetUiSoftColor(), GetUiBorderColor(), "0.84 0.72", "0.97 0.86");
             AddLabel(container, headerName + ".Badge", GetQuestBadgeText(player, quest, line), 10, _config.Theme.Text, "0.05 0.10", "0.95 0.90", TextAnchor.MiddleCenter);
-            AddLine(container, headerName, GetUiGoldLineColor(), "0.02 0.38", "0.98 0.383");
+            // Линия теперь на всю ширину (0.00 - 1.00)
+            AddLine(container, headerName, GetUiGoldLineColor(), "0.00 0.38", "1.00 0.383");
             AddLabel(container, headerName, GetQuestDescription(player, quest), 12, _config.Theme.Text, "0.03 0.08", "0.97 0.34", TextAnchor.UpperLeft);
 
             RenderQuestObjectivesBlock(container, player, parent, quest);
@@ -1464,16 +1672,18 @@ namespace Oxide.Plugins
 
         private void RenderQuestObjectivesBlock(CuiElementContainer container, BasePlayer player, string parent, QuestDefinition quest)
         {
-            AddLabel(container, parent, GetMsg("Label.Objectives", player.UserIDString), 18, _config.Theme.Text, "0.04 0.60", "0.34 0.66", TextAnchor.MiddleLeft);
+            // Заголовок поднят на уровень 0.63 - 0.69
+            AddLabel(container, parent, GetMsg("Label.Objectives", player.UserIDString), 18, _config.Theme.Text, "0.04 0.63", "0.34 0.69", TextAnchor.MiddleLeft);
 
             var objective = quest.Objectives.Where(x => !x.Hidden).OrderBy(x => x.Order).FirstOrDefault();
             if (objective == null)
             {
-                AddLabel(container, parent, GetMsg("Label.NoObjectives", player.UserIDString), 11, _config.Theme.TextMuted, "0.04 0.46", "0.40 0.54", TextAnchor.MiddleLeft);
+                AddLabel(container, parent, GetMsg("Label.NoObjectives", player.UserIDString), 11, _config.Theme.TextMuted, "0.04 0.50", "0.40 0.58", TextAnchor.MiddleLeft);
                 return;
             }
 
-            AddThinPanel(container, parent, parent + ".ObjectiveRow", GetUiSoftColor(), GetUiBorderColor(), "0.04 0.48", "0.40 0.56");
+            // Строка цели поднята на уровень 0.54 - 0.62 (зазор с заголовком теперь минимальный)
+            AddThinPanel(container, parent, parent + ".ObjectiveRow", GetUiSoftColor(), GetUiBorderColor(), "0.04 0.54", "0.40 0.62");
             AddSquarePanel(container, parent + ".ObjectiveRow", parent + ".ObjectiveRow.Icon", "0 0 0 0", 0.103f, 0.50f, 38f);
             AddObjectiveIcon(container, parent + ".ObjectiveRow.Icon", objective);
             AddLabel(container, parent + ".ObjectiveRow", GetObjectiveTitle(player, objective), 11, _config.Theme.Text, "0.235 0.18", "0.72 0.82", TextAnchor.MiddleLeft);
@@ -1481,8 +1691,9 @@ namespace Oxide.Plugins
 
             if (quest.ResetProgressOnWipe)
             {
-                AddLabel(container, parent, "Warning!", 11, GetUiGoldColor(), "0.04 0.42", "0.11 0.47", TextAnchor.MiddleLeft);
-                AddLabel(container, parent, "This Quest's Progress resets on Wipe", 11, _config.Theme.Text, "0.11 0.42", "0.42 0.47", TextAnchor.MiddleLeft);
+                // Предупреждение о вайпе также поднято
+                AddLabel(container, parent, "Warning!", 11, GetUiGoldColor(), "0.04 0.49", "0.11 0.54", TextAnchor.MiddleLeft);
+                AddLabel(container, parent, "This Quest's Progress resets on Wipe", 11, _config.Theme.Text, "0.11 0.49", "0.42 0.54", TextAnchor.MiddleLeft);
             }
         }
 
@@ -1494,8 +1705,9 @@ namespace Oxide.Plugins
                 .ThenBy(x => x.PrizeType ?? string.Empty)
                 .Take(6)
                 .ToList();
-            AddPanel(container, parent, parent + ".RewardsArea", "0 0 0 0", "0.58 0.14", "0.92 0.62");
-            AddCornerFrame(container, parent + ".RewardsArea", GetUiGoldLineColor());
+            
+            // Используем AddThinPanel с прозрачным фоном для создания сплошной рамки по периметру
+            AddThinPanel(container, parent, parent + ".RewardsArea", "0 0 0 0", GetUiGoldLineColor(), "0.58 0.19", "0.92 0.67");
 
             if (prizes.Count == 0)
             {
@@ -1520,9 +1732,11 @@ namespace Oxide.Plugins
                 }
             }
 
-            AddPanel(container, parent, parent + ".RewardsFooter", GetUiFooterPanelColor(), "0.58 0.14", "0.92 0.28");
-            AddLabel(container, parent + ".RewardsFooter", GetMsg("Label.QuestRewards", player.UserIDString), 22, GetUiGoldColor(), "0.06 0.42", "0.94 0.86", TextAnchor.MiddleCenter);
-            AddLabel(container, parent + ".RewardsFooter", string.Format(GetMsg("Label.RewardCount", player.UserIDString), allPrizes.Count), 10, _config.Theme.Text, "0.06 0.08", "0.94 0.42", TextAnchor.MiddleCenter);
+            // Делаем футер дочерним элементом RewardsArea и отодвигаем от краев (0.01), чтобы гарантированно не перекрывать рамку
+            var footerName = parent + ".RewardsArea.Footer";
+            AddPanel(container, parent + ".RewardsArea", footerName, GetUiFooterPanelColor(), "0.01 0.01", "0.99 0.30");
+            AddLabel(container, footerName, GetMsg("Label.QuestRewards", player.UserIDString), 22, GetUiGoldColor(), "0.06 0.42", "0.94 0.86", TextAnchor.MiddleCenter);
+            AddLabel(container, footerName, string.Format(GetMsg("Label.RewardCount", player.UserIDString), allPrizes.Count), 10, _config.Theme.Text, "0.06 0.08", "0.94 0.42", TextAnchor.MiddleCenter);
         }
 
         private void RenderQuestlineStageRail(CuiElementContainer container, BasePlayer player, string parent, QuestlineDefinition line, long selectedQuestId)
@@ -1554,14 +1768,14 @@ namespace Oxide.Plugins
 
         private void RenderFooterStrip(CuiElementContainer container, BasePlayer player, string parent, QuestDefinition quest, QuestStatus status, QuestlineDefinition line)
         {
-            AddLine(container, parent, GetUiGoldLineColor(), "0.03 0.125", "0.97 0.128");
-            AddPanel(container, parent, parent + ".Footer", GetUiFooterPanelColor(), "0.03 0.03", "0.97 0.12");
+            AddLine(container, parent, GetUiGoldLineColor(), "0.01 0.125", "0.99 0.128");
+            AddPanel(container, parent, parent + ".Footer", GetUiFooterPanelColor(), "0.01 0.03", "0.99 0.12");
             RenderFooterButtons(container, player, parent + ".Footer", quest, status);
         }
 
         private void RenderFooterButtons(CuiElementContainer container, BasePlayer player, string parent, QuestDefinition quest, QuestStatus status)
         {
-            var tracked = GetPlayerProgress(player.userID).TrackedQuestId == quest.QuestID;
+            var tracked = GetPlayerProgress(player.userID).TrackedQuestIds.Contains(quest.QuestID);
             var right = 0.98f;
 
             if (status == QuestStatus.OnCooldown)
@@ -1593,7 +1807,7 @@ namespace Oxide.Plugins
 
                 if (quest.AllowTrack)
                 {
-                    AddStyledButton(container, parent, GetUiSoftColor(), tracked ? GetMsg("Action.Untrack", player.UserIDString) : GetMsg("Action.Track", player.UserIDString), 11, hasSubmission ? _config.Theme.Text : GetUiGoldColor(), hasSubmission ? "0.61 0.18" : "0.80 0.18", hasSubmission ? "0.79 0.82" : "0.98 0.82", tracked ? "UI_Handler untrack 0" : "UI_Handler track " + quest.QuestID);
+                    AddStyledButton(container, parent, GetUiSoftColor(), tracked ? GetMsg("Action.Untrack", player.UserIDString) : GetMsg("Action.Track", player.UserIDString), 11, hasSubmission ? _config.Theme.Text : GetUiGoldColor(), hasSubmission ? "0.61 0.18" : "0.80 0.18", hasSubmission ? "0.79 0.82" : "0.98 0.82", tracked ? "UI_Handler untrack " + quest.QuestID : "UI_Handler track " + quest.QuestID);
                 }
 
                 if (hasSubmission)
@@ -1605,25 +1819,48 @@ namespace Oxide.Plugins
 
             if (quest.AllowTrack && status != QuestStatus.Locked && status != QuestStatus.OnCooldown)
             {
-                AddStyledButton(container, parent, GetUiSoftColor(), tracked ? GetMsg("Action.Untrack", player.UserIDString) : GetMsg("Action.Track", player.UserIDString), 11, _config.Theme.Text, string.Format(CultureInfo.InvariantCulture, "{0} 0.18", right - 0.18f), string.Format(CultureInfo.InvariantCulture, "{0} 0.82", right), tracked ? "UI_Handler untrack 0" : "UI_Handler track " + quest.QuestID);
+                AddStyledButton(container, parent, GetUiSoftColor(), tracked ? GetMsg("Action.Untrack", player.UserIDString) : GetMsg("Action.Track", player.UserIDString), 11, _config.Theme.Text, string.Format(CultureInfo.InvariantCulture, "{0} 0.18", right - 0.18f), string.Format(CultureInfo.InvariantCulture, "{0} 0.82", right), tracked ? "UI_Handler untrack " + quest.QuestID : "UI_Handler track " + quest.QuestID);
             }
         }
 
         private void RenderProfileBlock(CuiElementContainer container, BasePlayer player, string parent)
         {
-            AddPanel(container, parent, parent + ".Profile", GetUiProfileColor(), "0.05 0.80", "0.95 0.95");
-            AddSquareThinPanel(container, parent + ".Profile", parent + ".Profile.Avatar", GetUiSoftColor(), GetUiBorderColor(), 0.115f, 0.50f, 52f);
+            AddPanel(container, parent, parent + ".Profile", GetUiProfileColor(), "0.05 0.84", "0.95 0.95");
+            container.Add(new CuiPanel
+            {
+                Image = { Color = "0 0 0 0.7", Sprite = "assets/content/ui/ui.background.transparent.radial.psd" },
+                RectTransform = { AnchorMin = "0 0", AnchorMax = "1 1" }
+            }, parent + ".Profile");
+
+            AddSquarePanel(container, parent + ".Profile", parent + ".Profile.Avatar", "0 0 0 0.4", 0.11f, 0.50f, 46f);
             AddSteamAvatar(container, parent + ".Profile.Avatar", player.userID);
             var initial = string.IsNullOrEmpty(player.displayName) ? "P" : player.displayName.Substring(0, 1).ToUpperInvariant();
             AddLabel(container, parent + ".Profile.Avatar", initial, 18, "1 1 1 0.08", "0 0", "1 1", TextAnchor.MiddleCenter);
-            AddStyledButton(container, parent + ".Profile", GetUiSoftColor(), "≡", 12, GetUiGoldColor(), "0.82 0.66", "0.89 0.86", "UI_Handler toggle_minilist");
-            AddStyledButton(container, parent + ".Profile", GetUiSoftColor(), "*", 13, GetUiGoldColor(), "0.90 0.66", "0.97 0.86", "UI_Handler settings");
-            AddLabel(container, parent + ".Profile", player.displayName, 18, _config.Theme.Text, "0.24 0.54", "0.76 0.80", TextAnchor.MiddleLeft);
+            AddCornerFrame(container, parent + ".Profile.Avatar", "0.42 0.37 0.23 1.0");
+
+            // Кнопка мини-списка (фон + иконка + клик)
+            AddPanel(container, parent + ".Profile", parent + ".Profile.MiniBtn", GetUiSoftColor(), "0.82 0.55", "0.89 0.85");
+            AddSquarePanel(container, parent + ".Profile", parent + ".Profile.MiniIcon", "0 0 0 0", 0.855f, 0.70f, 22f);
+            AddListIcon(container, parent + ".Profile.MiniIcon", GetUiGoldColor());
+            AddOverlayButton(container, parent + ".Profile", "UI_Handler toggle_minilist", "0.82 0.55", "0.89 0.85");
+            
+            // Визуальная часть кнопки (фон)
+            AddPanel(container, parent + ".Profile", parent + ".Profile.SettingsBtn", GetUiSoftColor(), "0.90 0.55", "0.97 0.85");
+            
+            // Иконка слайдеров
+            AddSquarePanel(container, parent + ".Profile", parent + ".Profile.SettingsIcon", "0 0 0 0", 0.935f, 0.70f, 20f);
+            AddSettingsIcon(container, parent + ".Profile.SettingsIcon", GetUiGoldColor());
+            
+            // Невидимая кнопка ПОВЕРХ всего для клика
+            AddOverlayButton(container, parent + ".Profile", "UI_Handler settings", "0.90 0.55", "0.97 0.85");
+
+            AddLabel(container, parent + ".Profile", player.displayName, 18, _config.Theme.Text, "0.20 0.50", "0.76 0.90", TextAnchor.MiddleLeft);
 
             var progress = GetPlayerProgress(player.userID);
-            AddLabel(container, parent + ".Profile", string.Format("{0} {1}", GetMsg("Label.ActiveSummary", player.UserIDString), progress.ActiveQuests.Count), 10, _config.Theme.TextMuted, "0.24 0.28", "0.48 0.44", TextAnchor.MiddleLeft);
-            AddLabel(container, parent + ".Profile", string.Format("{0} {1}", GetMsg("Label.CompletedSummary", player.UserIDString), progress.CompletedQuests.Count), 10, _config.Theme.TextMuted, "0.52 0.28", "0.80 0.44", TextAnchor.MiddleLeft);
-            AddLabel(container, parent + ".Profile", string.Format("{0}: {1}", GetMsg("Label.TrackedSummary", player.UserIDString), GetProfileTrackedQuestText(player)), 10, GetUiGoldColor(), "0.24 0.12", "0.84 0.26", TextAnchor.MiddleLeft);
+            AddLabel(container, parent + ".Profile", string.Format("{0} {1}", GetMsg("Label.ActiveSummary", player.UserIDString), progress.ActiveQuests.Count), 11, _config.Theme.TextMuted, "0.20 0.10", "0.45 0.45", TextAnchor.MiddleLeft);
+            AddLabel(container, parent + ".Profile", string.Format("{0} {1}", GetMsg("Label.CompletedSummary", player.UserIDString), progress.CompletedQuests.Count), 11, _config.Theme.TextMuted, "0.45 0.10", "0.68 0.45", TextAnchor.MiddleCenter);
+
+            AddLabel(container, parent + ".Profile", string.Format("{0} {1}", GetMsg("Label.TrackedSummary", player.UserIDString), GetProfileTrackedQuestText(player)), 11, GetUiGoldColor(), "0.68 0.10", "0.96 0.45", TextAnchor.MiddleRight);
         }
 
         private void RenderMiniUi(BasePlayer player)
@@ -1819,10 +2056,7 @@ namespace Oxide.Plugins
             }
 
             progress.ActiveQuests.Remove(questId);
-            if (progress.TrackedQuestId == questId)
-            {
-                progress.TrackedQuestId = 0;
-            }
+            progress.TrackedQuestIds.Remove(questId);
 
             _statistics.DeclinedTasks++;
             SaveAllData();
@@ -1867,10 +2101,7 @@ namespace Oxide.Plugins
                 progress.Cooldowns[questId] = GetQuestCooldownExpiry(quest);
             }
 
-            if (progress.TrackedQuestId == questId)
-            {
-                progress.TrackedQuestId = 0;
-            }
+            progress.TrackedQuestIds.Remove(questId);
 
             _statistics.CompletedTasks++;
             IncrementQuestExecutionCount(questId);
@@ -1886,17 +2117,38 @@ namespace Oxide.Plugins
         private void SetTrackedQuest(BasePlayer player, long questId)
         {
             var progress = GetPlayerProgress(player.userID);
+            var limit = _config.Settings.TrackedQuestLimit;
+
             if (questId != 0 && !progress.ActiveQuests.ContainsKey(questId))
             {
                 return;
             }
 
-            progress.TrackedQuestId = questId;
+            if (questId == 0)
+            {
+                progress.TrackedQuestIds.Clear();
+            }
+            else if (progress.TrackedQuestIds.Contains(questId))
+            {
+                progress.TrackedQuestIds.Remove(questId);
+            }
+            else
+            {
+                if (progress.TrackedQuestIds.Count >= limit)
+                {
+                    SendLocalizedMessage(player, "Msg.TrackedQuestsLimit", limit);
+                    RefreshMainUi(player);
+                    RenderMiniUiIfNeeded(player);
+                    return;
+                }
+                progress.TrackedQuestIds.Add(questId);
+            }
+
             SavePlayerData();
 
             var quest = FindQuest(questId);
             SendLocalizedMessage(player, "Msg.QuestTracked", quest == null ? "-" : GetQuestTitle(player, quest));
-            OpenMainUi(player);
+            RefreshMainUi(player);
             RenderMiniUiIfNeeded(player);
         }
 
@@ -2378,7 +2630,7 @@ namespace Oxide.Plugins
                     long trackedId;
                     if (long.TryParse(condition.Value, out trackedId))
                     {
-                        return progress.TrackedQuestId == trackedId;
+                        return progress.TrackedQuestIds.Contains(trackedId);
                     }
                     break;
             }
@@ -2745,19 +2997,30 @@ namespace Oxide.Plugins
         private IEnumerable<QuestDefinition> GetFilteredQuests(BasePlayer player, string tab, string filter)
         {
             IEnumerable<QuestDefinition> source = tab == "Daily" ? _dailyCatalog.DailyQuests : _questCatalog.Quests;
+            var progress = GetPlayerProgress(player.userID);
+
             foreach (var quest in source.OrderBy(x => x.QuestCategory).ThenBy(x => x.QuestID))
             {
-                if (!_config.Ui.ShowLockedQuests && GetQuestStatus(player, quest) == QuestStatus.Locked)
+                var status = GetQuestStatus(player, quest);
+
+                if (!_config.Ui.ShowLockedQuests && status == QuestStatus.Locked)
                 {
                     continue;
                 }
 
-                if (!_config.Ui.ShowCompletedInList && GetQuestStatus(player, quest) == QuestStatus.Completed)
+                if (!_config.Ui.ShowCompletedInList && status == QuestStatus.Completed)
                 {
                     continue;
                 }
 
-                if (filter != "All" && !string.Equals(GetQuestStatus(player, quest).ToString(), filter, StringComparison.OrdinalIgnoreCase))
+                if (filter == "Tracked")
+                {
+                    if (!progress.TrackedQuestIds.Contains(quest.QuestID))
+                    {
+                        continue;
+                    }
+                }
+                else if (filter != "All" && !string.Equals(status.ToString(), filter, StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
@@ -2802,7 +3065,7 @@ namespace Oxide.Plugins
 
         private string[] GetFilterValues()
         {
-            return new[] { "All", "Available", "Started", "ReadyToClaim", "Completed", "Locked", "OnCooldown" };
+            return new[] { "All", "Available", "Started", "ReadyToClaim", "Completed", "Tracked", "OnCooldown" };
         }
 
         private bool IsDailyQuest(QuestDefinition quest)
@@ -2909,49 +3172,73 @@ namespace Oxide.Plugins
                 : GetMsg("Status." + filter, player.UserIDString);
         }
 
+        private void AddListIcon(CuiElementContainer container, string parent, string color)
+        {
+            // Три аккуратные линии через относительные координаты (стабильнее чем пиксели)
+            AddLine(container, parent, color, "0.25 0.73", "0.75 0.77");
+            AddLine(container, parent, color, "0.25 0.48", "0.75 0.52");
+            AddLine(container, parent, color, "0.25 0.23", "0.75 0.27");
+        }
+
+        private void AddSettingsIcon(CuiElementContainer container, string parent, string color)
+        {
+            // Горизонтальные линии (одинаковой толщины)
+            AddLine(container, parent, color, "0.20 0.73", "0.80 0.77");
+            AddLine(container, parent, color, "0.20 0.48", "0.80 0.52");
+            AddLine(container, parent, color, "0.20 0.23", "0.80 0.27");
+
+            // Вертикальные бегунки (пропорциональные)
+            AddLine(container, parent, color, "0.35 0.65", "0.45 0.85");
+            AddLine(container, parent, color, "0.60 0.40", "0.70 0.60");
+            AddLine(container, parent, color, "0.40 0.15", "0.50 0.35");
+        }
+
         private void AddFilterIcon(CuiElementContainer container, string parent, string filter, string color)
         {
             switch ((filter ?? string.Empty).ToLowerInvariant())
             {
                 case "available":
-                    AddPixelBlock(container, parent, parent + ".v", color, 10f, 4f, 12f, 18f);
-                    AddPixelBlock(container, parent, parent + ".h", color, 4f, 10f, 18f, 12f);
+                    // Чистый Плюс (+)
+                    AddPixelBlock(container, parent, parent + ".h", color, 5f, 9f, 15f, 11f);
+                    AddPixelBlock(container, parent, parent + ".v", color, 9f, 5f, 11f, 15f);
                     return;
                 case "started":
-                    AddPixelBlock(container, parent, parent + ".shaft", color, 4f, 10f, 13f, 12f);
-                    AddPixelBlock(container, parent, parent + ".head1", color, 11f, 10f, 17f, 16f);
-                    AddPixelBlock(container, parent, parent + ".head2", color, 11f, 6f, 17f, 12f);
+                    // Треугольник Play (стрелка вправо)
+                    AddPixelBlock(container, parent, parent + ".p1", color, 7f, 5f, 9f, 15f);
+                    AddPixelBlock(container, parent, parent + ".p2", color, 9f, 7f, 11f, 13f);
+                    AddPixelBlock(container, parent, parent + ".p3", color, 11f, 9f, 13f, 11f);
                     return;
                 case "readytoclaim":
-                    AddPixelBlock(container, parent, parent + ".boxTop", color, 5f, 14f, 17f, 16f);
-                    AddPixelBlock(container, parent, parent + ".boxBot", color, 5f, 6f, 17f, 8f);
-                    AddPixelBlock(container, parent, parent + ".boxLeft", color, 5f, 6f, 7f, 16f);
-                    AddPixelBlock(container, parent, parent + ".boxRight", color, 15f, 6f, 17f, 16f);
-                    AddPixelBlock(container, parent, parent + ".mid", color, 7f, 10f, 15f, 12f);
+                    // Восклицательный знак (!)
+                    AddPixelBlock(container, parent, parent + ".ex1", color, 9f, 8f, 11f, 16f);
+                    AddPixelBlock(container, parent, parent + ".ex2", color, 9f, 4f, 11f, 6f);
                     return;
                 case "completed":
-                    AddPixelBlock(container, parent, parent + ".tick1", color, 5f, 9f, 9f, 13f);
-                    AddPixelBlock(container, parent, parent + ".tick2", color, 8f, 8f, 17f, 17f);
+                    // Четкая галочка (V)
+                    AddPixelBlock(container, parent, parent + ".chk1", color, 5f, 8f, 7f, 10f);
+                    AddPixelBlock(container, parent, parent + ".chk2", color, 7f, 6f, 9f, 8f);
+                    AddPixelBlock(container, parent, parent + ".chk3", color, 9f, 8f, 11f, 11f);
+                    // Длинная часть
+                    AddPixelBlock(container, parent, parent + ".chk4", color, 11f, 11f, 13f, 14f);
+                    AddPixelBlock(container, parent, parent + ".chk5", color, 13f, 14f, 15f, 17f);
                     return;
-                case "locked":
-                    AddPixelBlock(container, parent, parent + ".bodyTop", color, 6f, 12f, 16f, 14f);
-                    AddPixelBlock(container, parent, parent + ".bodyLeft", color, 6f, 6f, 8f, 14f);
-                    AddPixelBlock(container, parent, parent + ".bodyRight", color, 14f, 6f, 16f, 14f);
-                    AddPixelBlock(container, parent, parent + ".bodyBot", color, 6f, 6f, 16f, 8f);
-                    AddPixelBlock(container, parent, parent + ".arcLeft", color, 8f, 14f, 10f, 18f);
-                    AddPixelBlock(container, parent, parent + ".arcRight", color, 12f, 14f, 14f, 18f);
-                    AddPixelBlock(container, parent, parent + ".arcTop", color, 9f, 17f, 13f, 19f);
+                case "tracked":
+                    // Флаг на древке (похож на заполненную F)
+                    AddPixelBlock(container, parent, parent + ".pole", color, 6f, 4f, 8f, 16f);   // Древко
+                    AddPixelBlock(container, parent, parent + ".flag", color, 8f, 10f, 15f, 16f); // Полотнище
                     return;
                 case "oncooldown":
-                    AddPixelBlock(container, parent, parent + ".top", color, 6f, 15f, 16f, 17f);
-                    AddPixelBlock(container, parent, parent + ".bot", color, 6f, 5f, 16f, 7f);
-                    AddPixelBlock(container, parent, parent + ".diag1", color, 7f, 13f, 15f, 9f);
-                    AddPixelBlock(container, parent, parent + ".diag2", color, 7f, 9f, 15f, 13f);
+                    // Упрощенный Замок
+                    AddPixelBlock(container, parent, parent + ".l1", color, 6f, 5f, 14f, 11f);  // Основание
+                    AddPixelBlock(container, parent, parent + ".l2", color, 8f, 11f, 12f, 15f); // Дужка
+                    AddPixelBlock(container, parent, parent + ".l3", "0 0 0 1", 9f, 7f, 11f, 9f); // Замочная скважина
                     return;
                 default:
-                    AddPixelBlock(container, parent, parent + ".line1", color, 4f, 15f, 18f, 17f);
-                    AddPixelBlock(container, parent, parent + ".line2", color, 4f, 10f, 18f, 12f);
-                    AddPixelBlock(container, parent, parent + ".line3", color, 4f, 5f, 18f, 7f);
+                    // Иконка "Все" (сетка 2x2)
+                    AddPixelBlock(container, parent, parent + ".a1", color, 5f, 5f, 9f, 9f);
+                    AddPixelBlock(container, parent, parent + ".a2", color, 11f, 5f, 15f, 9f);
+                    AddPixelBlock(container, parent, parent + ".a3", color, 5f, 11f, 9f, 15f);
+                    AddPixelBlock(container, parent, parent + ".a4", color, 11f, 11f, 15f, 15f);
                     return;
             }
         }
@@ -3213,9 +3500,8 @@ namespace Oxide.Plugins
 
         private string GetProfileTrackedQuestText(BasePlayer player)
         {
-            var trackedId = GetPlayerProgress(player.userID).TrackedQuestId;
-            var quest = FindQuest(trackedId);
-            return quest == null ? "-" : TrimUiText(GetQuestTitle(player, quest), 20);
+            var trackedIds = GetPlayerProgress(player.userID).TrackedQuestIds;
+            return trackedIds.Count.ToString();
         }
 
         private string GetFooterPrimaryText(BasePlayer player, QuestDefinition quest, QuestlineDefinition line)
@@ -3482,12 +3768,12 @@ namespace Oxide.Plugins
 
         private string GetUiGoldLineColor()
         {
-            return "0.80 0.66 0.30 0.70";
+            return "0.59 0.50 0.25 1.0";
         }
 
         private string GetUiGoldFrameColor()
         {
-            return "0.90 0.76 0.36 0.50";
+            return "0.48 0.42 0.23 1.0";
         }
 
         private string GetUiFooterPanelColor()
@@ -3575,7 +3861,7 @@ namespace Oxide.Plugins
             }, parent, name);
         }
 
-        private void AddVerticalScrollView(CuiElementContainer container, string parent, string name, float contentHeight, float scrollbarSize = 6f)
+        private void AddVerticalScrollView(CuiElementContainer container, string parent, string name, float contentHeight, float normalizedPos = 1f, float scrollbarSize = 6f)
         {
             container.Add(new CuiElement
             {
@@ -3592,6 +3878,7 @@ namespace Oxide.Plugins
                             OffsetMin = string.Format(CultureInfo.InvariantCulture, "0 {0}", -contentHeight),
                             OffsetMax = string.Format(CultureInfo.InvariantCulture, "{0} 0", -scrollbarSize - 4f)
                         },
+                        VerticalNormalizedPosition = normalizedPos,
                         Elasticity = float.MinValue,
                         Horizontal = false,
                         MovementType = ScrollRect.MovementType.Clamped,
