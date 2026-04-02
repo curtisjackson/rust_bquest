@@ -2567,6 +2567,14 @@ namespace Oxide.Plugins
                 return candidates.Any(candidate => tokens.Any(token => !string.IsNullOrEmpty(candidate) && candidate.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0));
             }
 
+            if (string.Equals(objective.MatchMode, "prefab", StringComparison.OrdinalIgnoreCase))
+            {
+                return candidates.Any(candidate => tokens.Any(token =>
+                    !string.IsNullOrEmpty(candidate) &&
+                    (candidate.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                     candidate.StartsWith(token, StringComparison.OrdinalIgnoreCase))));
+            }
+
             return candidates.Any(candidate => tokens.Any(token => string.Equals(token, candidate, StringComparison.OrdinalIgnoreCase)));
         }
 
