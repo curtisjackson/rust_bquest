@@ -1021,21 +1021,41 @@ namespace Oxide.Plugins
                     return;
                 case "start":
                     StartQuest(player, ToLong(value));
+                    refreshSidebar = false; // Сохраняем скролл
                     break;
                 case "cancel":
                     CancelQuest(player, ToLong(value));
+                    refreshSidebar = false; // Сохраняем скролл
                     break;
                 case "track":
-                    SetTrackedQuest(player, ToLong(value));
-                    break;
                 case "untrack":
-                    SetTrackedQuest(player, ToLong(value));
+                    if (SetTrackedQuest(player, ToLong(value)))
+                    {
+                        // Если мы в фильтре "Отслеживаемые", нам нужно перерисовать весь список, 
+                        // так как квест должен исчезнуть или появиться.
+                        if (string.Equals(state.Filter, "Tracked", StringComparison.OrdinalIgnoreCase))
+                        {
+                            refreshSidebar = true;
+                        }
+                        else
+                        {
+                            refreshSidebar = false;
+                        }
+                    }
+                    else
+                    {
+                        // Если ничего не изменилось (лимит), вообще не трогаем UI
+                        refreshSidebar = false;
+                        refreshDetails = false;
+                    }
                     break;
                 case "claim":
                     ClaimQuest(player, ToLong(value));
+                    refreshSidebar = false; // Сохраняем скролл
                     break;
                 case "submit":
                     SubmitQuestItems(player, ToLong(value));
+                    refreshSidebar = false; // Сохраняем скролл
                     break;
                 case "settings":
                     state.SettingsOpen = !state.SettingsOpen;
@@ -1072,9 +1092,18 @@ namespace Oxide.Plugins
                     break;
             }
 
-            if (!refreshSidebar && (action == "select" || action == "linequest"))
+            // Хирургическое обновление для сохранения позиции скролла
+            if (!refreshSidebar)
             {
-                SurgicalUpdateList(player, oldSelectedId, state.SelectedQuestId);
+                if (action == "select" || action == "linequest")
+                {
+                    SurgicalUpdateList(player, oldSelectedId, state.SelectedQuestId);
+                }
+                else if (action == "start" || action == "cancel" || action == "track" || action == "untrack" || action == "claim" || action == "submit")
+                {
+                    UpdateSurgicalQuestRow(player, ToLong(value), state.SelectedQuestId == ToLong(value));
+                    UpdateSurgicalProfileSummary(player);
+                }
             }
 
             RefreshMainUi(player, refreshSidebar, refreshDetails);
@@ -1825,42 +1854,59 @@ namespace Oxide.Plugins
 
         private void RenderProfileBlock(CuiElementContainer container, BasePlayer player, string parent)
         {
-            AddPanel(container, parent, parent + ".Profile", GetUiProfileColor(), "0.05 0.84", "0.95 0.95");
+            var profileName = parent + ".Profile";
+            AddPanel(container, parent, profileName, GetUiProfileColor(), "0.05 0.84", "0.95 0.95");
             container.Add(new CuiPanel
             {
                 Image = { Color = "0 0 0 0.7", Sprite = "assets/content/ui/ui.background.transparent.radial.psd" },
                 RectTransform = { AnchorMin = "0 0", AnchorMax = "1 1" }
-            }, parent + ".Profile");
+            }, profileName);
 
-            AddSquarePanel(container, parent + ".Profile", parent + ".Profile.Avatar", "0 0 0 0.4", 0.11f, 0.50f, 46f);
-            AddSteamAvatar(container, parent + ".Profile.Avatar", player.userID);
+            AddSquarePanel(container, profileName, profileName + ".Avatar", "0 0 0 0.4", 0.11f, 0.50f, 46f);
+            AddSteamAvatar(container, profileName + ".Avatar", player.userID);
             var initial = string.IsNullOrEmpty(player.displayName) ? "P" : player.displayName.Substring(0, 1).ToUpperInvariant();
-            AddLabel(container, parent + ".Profile.Avatar", initial, 18, "1 1 1 0.08", "0 0", "1 1", TextAnchor.MiddleCenter);
-            AddCornerFrame(container, parent + ".Profile.Avatar", "0.42 0.37 0.23 1.0");
+            AddLabel(container, profileName + ".Avatar", initial, 18, "1 1 1 0.08", "0 0", "1 1", TextAnchor.MiddleCenter);
+            AddCornerFrame(container, profileName + ".Avatar", "0.42 0.37 0.23 1.0");
 
             // Кнопка мини-списка (фон + иконка + клик)
-            AddPanel(container, parent + ".Profile", parent + ".Profile.MiniBtn", GetUiSoftColor(), "0.82 0.55", "0.89 0.85");
-            AddSquarePanel(container, parent + ".Profile", parent + ".Profile.MiniIcon", "0 0 0 0", 0.855f, 0.70f, 22f);
-            AddListIcon(container, parent + ".Profile.MiniIcon", GetUiGoldColor());
-            AddOverlayButton(container, parent + ".Profile", "UI_Handler toggle_minilist", "0.82 0.55", "0.89 0.85");
+            AddPanel(container, profileName, profileName + ".MiniBtn", GetUiSoftColor(), "0.82 0.55", "0.89 0.85");
+            AddSquarePanel(container, profileName, profileName + ".MiniIcon", "0 0 0 0", 0.855f, 0.70f, 22f);
+            AddListIcon(container, profileName + ".MiniIcon", GetUiGoldColor());
+            AddOverlayButton(container, profileName, "UI_Handler toggle_minilist", "0.82 0.55", "0.89 0.85");
             
             // Визуальная часть кнопки (фон)
-            AddPanel(container, parent + ".Profile", parent + ".Profile.SettingsBtn", GetUiSoftColor(), "0.90 0.55", "0.97 0.85");
+            AddPanel(container, profileName, profileName + ".SettingsBtn", GetUiSoftColor(), "0.90 0.55", "0.97 0.85");
             
             // Иконка слайдеров
-            AddSquarePanel(container, parent + ".Profile", parent + ".Profile.SettingsIcon", "0 0 0 0", 0.935f, 0.70f, 20f);
-            AddSettingsIcon(container, parent + ".Profile.SettingsIcon", GetUiGoldColor());
+            AddSquarePanel(container, profileName, profileName + ".SettingsIcon", "0 0 0 0", 0.935f, 0.70f, 20f);
+            AddSettingsIcon(container, profileName + ".SettingsIcon", GetUiGoldColor());
             
             // Невидимая кнопка ПОВЕРХ всего для клика
-            AddOverlayButton(container, parent + ".Profile", "UI_Handler settings", "0.90 0.55", "0.97 0.85");
+            AddOverlayButton(container, profileName, "UI_Handler settings", "0.90 0.55", "0.97 0.85");
 
-            AddLabel(container, parent + ".Profile", player.displayName, 18, _config.Theme.Text, "0.20 0.50", "0.76 0.90", TextAnchor.MiddleLeft);
+            AddLabel(container, profileName, player.displayName, 18, _config.Theme.Text, "0.20 0.50", "0.76 0.90", TextAnchor.MiddleLeft);
 
+            RenderProfileSummary(container, player, profileName);
+        }
+
+        private void RenderProfileSummary(CuiElementContainer container, BasePlayer player, string parent)
+        {
             var progress = GetPlayerProgress(player.userID);
-            AddLabel(container, parent + ".Profile", string.Format("{0} {1}", GetMsg("Label.ActiveSummary", player.UserIDString), progress.ActiveQuests.Count), 11, _config.Theme.TextMuted, "0.20 0.10", "0.45 0.45", TextAnchor.MiddleLeft);
-            AddLabel(container, parent + ".Profile", string.Format("{0} {1}", GetMsg("Label.CompletedSummary", player.UserIDString), progress.CompletedQuests.Count), 11, _config.Theme.TextMuted, "0.45 0.10", "0.68 0.45", TextAnchor.MiddleCenter);
+            AddNamedLabel(container, parent, parent + ".Summary.Active", string.Format("{0} {1}", GetMsg("Label.ActiveSummary", player.UserIDString), progress.ActiveQuests.Count), 11, _config.Theme.TextMuted, "0.20 0.10", "0.45 0.45", TextAnchor.MiddleLeft);
+            AddNamedLabel(container, parent, parent + ".Summary.Completed", string.Format("{0} {1}", GetMsg("Label.CompletedSummary", player.UserIDString), progress.CompletedQuests.Count), 11, _config.Theme.TextMuted, "0.45 0.10", "0.68 0.45", TextAnchor.MiddleCenter);
+            AddNamedLabel(container, parent, parent + ".Summary.Tracked", string.Format("{0} {1}", GetMsg("Label.TrackedSummary", player.UserIDString), GetProfileTrackedQuestText(player)), 11, GetUiGoldColor(), "0.68 0.10", "0.96 0.45", TextAnchor.MiddleRight);
+        }
 
-            AddLabel(container, parent + ".Profile", string.Format("{0} {1}", GetMsg("Label.TrackedSummary", player.UserIDString), GetProfileTrackedQuestText(player)), 11, GetUiGoldColor(), "0.68 0.10", "0.96 0.45", TextAnchor.MiddleRight);
+        private void UpdateSurgicalProfileSummary(BasePlayer player)
+        {
+            var profileName = MainUiName + ".Root.Sidebar.Profile";
+            CuiHelper.DestroyUi(player, profileName + ".Summary.Active");
+            CuiHelper.DestroyUi(player, profileName + ".Summary.Completed");
+            CuiHelper.DestroyUi(player, profileName + ".Summary.Tracked");
+
+            var container = new CuiElementContainer();
+            RenderProfileSummary(container, player, profileName);
+            CuiHelper.AddUi(player, container);
         }
 
         private void RenderMiniUi(BasePlayer player)
@@ -2043,7 +2089,6 @@ namespace Oxide.Plugins
             }
 
             SendLocalizedMessage(player, "Msg.QuestStarted", GetQuestTitle(player, quest));
-            OpenMainUi(player);
         }
 
         private void CancelQuest(BasePlayer player, long questId)
@@ -2067,7 +2112,6 @@ namespace Oxide.Plugins
                 SendLocalizedMessage(player, "Msg.QuestCancelled", GetQuestTitle(player, quest));
             }
 
-            OpenMainUi(player);
             RenderMiniUiIfNeeded(player);
         }
 
@@ -2110,46 +2154,54 @@ namespace Oxide.Plugins
             Interface.CallHook("OnQuestCompleted", player, GetQuestTitle(player, quest));
             SendLocalizedMessage(player, "Msg.QuestClaimed", GetQuestTitle(player, quest));
 
-            OpenMainUi(player);
             RenderMiniUiIfNeeded(player);
         }
 
-        private void SetTrackedQuest(BasePlayer player, long questId)
+        private bool SetTrackedQuest(BasePlayer player, long questId)
         {
             var progress = GetPlayerProgress(player.userID);
             var limit = _config.Settings.TrackedQuestLimit;
 
             if (questId != 0 && !progress.ActiveQuests.ContainsKey(questId))
             {
-                return;
+                return false;
             }
 
+            bool changed = false;
             if (questId == 0)
             {
-                progress.TrackedQuestIds.Clear();
+                if (progress.TrackedQuestIds.Count > 0)
+                {
+                    progress.TrackedQuestIds.Clear();
+                    changed = true;
+                }
             }
             else if (progress.TrackedQuestIds.Contains(questId))
             {
                 progress.TrackedQuestIds.Remove(questId);
+                changed = true;
             }
             else
             {
                 if (progress.TrackedQuestIds.Count >= limit)
                 {
                     SendLocalizedMessage(player, "Msg.TrackedQuestsLimit", limit);
-                    RefreshMainUi(player);
                     RenderMiniUiIfNeeded(player);
-                    return;
+                    return false;
                 }
                 progress.TrackedQuestIds.Add(questId);
+                changed = true;
             }
 
-            SavePlayerData();
+            if (changed)
+            {
+                SavePlayerData();
+                var quest = FindQuest(questId);
+                SendLocalizedMessage(player, "Msg.QuestTracked", quest == null ? "-" : GetQuestTitle(player, quest));
+                RenderMiniUiIfNeeded(player);
+            }
 
-            var quest = FindQuest(questId);
-            SendLocalizedMessage(player, "Msg.QuestTracked", quest == null ? "-" : GetQuestTitle(player, quest));
-            RefreshMainUi(player);
-            RenderMiniUiIfNeeded(player);
+            return changed;
         }
 
         private void SubmitQuestItems(BasePlayer player, long questId)
@@ -2200,7 +2252,6 @@ namespace Oxide.Plugins
             }
 
             SendLocalizedMessage(player, "Msg.Submitted", GetQuestTitle(player, quest));
-            OpenMainUi(player);
             RenderMiniUiIfNeeded(player);
         }
 
@@ -2436,13 +2487,13 @@ namespace Oxide.Plugins
                     if (quest != null)
                     {
                         SendLocalizedMessage(player, "Msg.CooldownFinished", GetQuestTitle(player, quest));
+                        if (GetUiState(player.userID).MainOpen)
+                        {
+                            UpdateSurgicalQuestRow(player, questId, GetUiState(player.userID).SelectedQuestId == questId);
+                        }
                     }
                 }
 
-                if (GetUiState(player.userID).MainOpen)
-                {
-                    OpenMainUi(player);
-                }
                 RenderMiniUiIfNeeded(player);
             }
 
@@ -2486,7 +2537,7 @@ namespace Oxide.Plugins
 
                 progress.Cooldowns.Remove(quest.QuestID);
                 SendLocalizedMessage(player, "Msg.CooldownFinished", GetQuestTitle(player, quest));
-                RefreshMainUi(player, true, true);
+                UpdateSurgicalQuestRow(player, quest.QuestID, GetUiState(player.userID).SelectedQuestId == quest.QuestID);
                 SavePlayerData();
             }
         }
@@ -4033,6 +4084,11 @@ namespace Oxide.Plugins
 
         private void AddLabel(CuiElementContainer container, string parent, string text, int size, string color, string anchorMin, string anchorMax, TextAnchor align)
         {
+            AddNamedLabel(container, parent, null, text, size, color, anchorMin, anchorMax, align);
+        }
+
+        private void AddNamedLabel(CuiElementContainer container, string parent, string name, string text, int size, string color, string anchorMin, string anchorMax, TextAnchor align)
+        {
             container.Add(new CuiLabel
             {
                 Text =
@@ -4047,7 +4103,7 @@ namespace Oxide.Plugins
                     AnchorMin = anchorMin,
                     AnchorMax = anchorMax
                 }
-            }, parent);
+            }, parent, name);
         }
 
         private void AddButton(CuiElementContainer container, string parent, string color, string text, int size, string anchorMin, string anchorMax, string command)
