@@ -57,6 +57,7 @@ namespace Oxide.Plugins
 
         private readonly Dictionary<ulong, PlayerUiState> _uiStates = new Dictionary<ulong, PlayerUiState>();
         private readonly Dictionary<ulong, Timer> _toastTimers = new Dictionary<ulong, Timer>();
+        private readonly Dictionary<ulong, Timer> _miniPositionSaveTimers = new Dictionary<ulong, Timer>();
 
         private readonly Dictionary<long, QuestDefinition> _allQuestsById = new Dictionary<long, QuestDefinition>();
         private readonly Dictionary<long, QuestlineDefinition> _questlinesById = new Dictionary<long, QuestlineDefinition>();
@@ -113,7 +114,7 @@ namespace Oxide.Plugins
             public int questCount = 999;
             public bool EnableAnimations = true;
             public string DefaultNotificationMode = "ToastAndChat";
-            public string NotificationPosition = "TopRight";
+            public string NotificationPosition = "TopLeft";
             public int CooldownListLimit = 5;
             public int TrackedQuestLimit = 10;
             public string UITheme = "Golden";
@@ -168,6 +169,29 @@ namespace Oxide.Plugins
             public string TextMuted = "0.70 0.72 0.76 1.0";
             public string Locked = "0.32 0.33 0.37 1.0";
             public string Overlay = "0 0 0 0.45";
+            // UI-цвета (не дублируют основные — специфичны для интерфейса)
+            public string UiWindow = "0.08 0.08 0.09 0.95";
+            public string UiSidebar = "0.10 0.10 0.11 0.94";
+            public string UiProfile = "0.14 0.14 0.15 0.96";
+            public string UiSoft = "0.15 0.15 0.16 0.96";
+            public string UiRow = "0.12 0.12 0.13 0.98";
+            public string UiSelected = "0.18 0.17 0.15 0.98";
+            public string UiReady = "0.17 0.18 0.15 0.98";
+            public string UiBorder = "0.22 0.22 0.24 0.95";
+            public string UiGold = "0.90 0.76 0.36 1.0";
+            public string UiGoldLine = "0.59 0.50 0.25 1.0";
+            public string UiGoldFrame = "0.48 0.42 0.23 1.0";
+            public string UiFooter = "0.16 0.15 0.14 0.92";
+            public string UiChrome = "0.08 0.08 0.08 0.97";
+            public string UiChromeHeader = "0.18 0.16 0.13 0.98";
+            public string UiChromeInset = "0.12 0.11 0.10 0.98";
+            public string UiChromeMuted = "0.20 0.18 0.15 0.98";
+            public string UiChromeBorder = "0.83 0.70 0.36 0.85";
+            public string UiStatusAvailable = "0.15 0.15 0.17 0.95";
+            public string UiStatusStarted = "0.20 0.28 0.38 0.95";
+            public string UiStatusReady = "0.20 0.36 0.25 0.95";
+            public string UiStatusCooldown = "0.38 0.26 0.12 0.95";
+            public string UiStatusCompleted = "0.24 0.24 0.24 0.95";
         }
 
         private sealed class QuestCatalog
@@ -283,6 +307,7 @@ namespace Oxide.Plugins
             public List<long> TrackedQuestIds = new List<long>();
             public NotificationSettings NotificationSettings = new NotificationSettings();
             public Dictionary<long, bool> ClaimedRewards = new Dictionary<long, bool>();
+            public MiniUiPosition MiniUiPosition = new MiniUiPosition();
         }
 
         private sealed class NotificationSettings
@@ -290,6 +315,12 @@ namespace Oxide.Plugins
             public bool ProgressToasts = true;
             public bool ChatMessages = true;
             public bool MiniListAutoShow;
+        }
+
+        private sealed class MiniUiPosition
+        {
+            public float OffsetX;
+            public float OffsetY;
         }
 
         private sealed class ActiveQuestRecord
@@ -334,7 +365,7 @@ namespace Oxide.Plugins
             LoadData();
             LoadQuestData();
             NormalizeQuestData();
-            RegisterLang();
+            // Локализация загружается из lang-файлов автоматически
             permission.RegisterPermission(PermissionDefault, this);
             RegisterQuestPermissions();
 
@@ -386,6 +417,13 @@ namespace Oxide.Plugins
                 _statisticsTimer.Destroy();
             }
 
+            foreach (var timerEntry in _miniPositionSaveTimers.Values)
+            {
+                timerEntry.Destroy();
+            }
+
+            _miniPositionSaveTimers.Clear();
+
             SaveAllData();
         }
 
@@ -410,6 +448,7 @@ namespace Oxide.Plugins
             DestroyMiniUi(player);
             DestroyToast(player);
             DestroySettingsUi(player);
+            DestroyMiniPositionSaveTimer(player.userID);
         }
 
         private void OnPlayerConnected(BasePlayer player)
@@ -599,162 +638,7 @@ namespace Oxide.Plugins
             _allQuestsById[quest.QuestID] = quest;
         }
 
-        private void RegisterLang()
-        {
-            lang.RegisterMessages(new Dictionary<string, string>
-            {
-                ["Title"] = "BQuest",
-                ["Tab.Quests"] = "Quests",
-                ["Tab.Daily"] = "Daily",
-                ["Tab.Questlines"] = "Chains",
-                ["Filter.All"] = "All",
-                ["Filter.Available"] = "Available",
-                ["Filter.Started"] = "Started",
-                ["Filter.ReadyToClaim"] = "Ready to Claim",
-                ["Filter.Completed"] = "Completed",
-                ["Filter.Tracked"] = "Tracked",
-                ["Filter.OnCooldown"] = "On Cooldown",
-                ["Status.Available"] = "Available",
-                ["Status.Started"] = "Started",
-                ["Status.ReadyToClaim"] = "Ready to Claim",
-                ["Status.Completed"] = "Completed",
-                ["Status.Tracked"] = "Tracked",
-                ["Status.OnCooldown"] = "On Cooldown",
-                ["Action.Start"] = "Start Quest",
-                ["Action.Cancel"] = "Cancel Quest",
-                ["Action.Track"] = "Track Quest",
-                ["Action.Untrack"] = "Untrack",
-                ["Action.Claim"] = "Claim Reward",
-                ["Action.Submit"] = "Submit Items",
-                ["Action.Settings"] = "Settings",
-                ["Action.Close"] = "Close",
-                ["Action.OpenMini"] = "Mini List",
-                ["Action.SettingsShort"] = "Settings",
-                ["Action.CloseShort"] = "Close",
-                ["Action.OpenMiniShort"] = "Mini",
-                ["Action.Back"] = "Back",
-                ["Label.Objectives"] = "Objectives",
-                ["Label.Rewards"] = "Rewards",
-                ["Label.QuestRewards"] = "Quest Rewards",
-                ["Label.FilterState"] = "Click To Filter By State",
-                ["Label.Tracked"] = "Tracked Quest",
-                ["Label.Cooldowns"] = "Upcoming Cooldowns",
-                ["Label.Questlines"] = "Chain Progress",
-                ["Label.Settings"] = "Notification Settings",
-                ["Label.ProgressToasts"] = "Progress Toasts",
-                ["Label.ChatMessages"] = "Chat Messages",
-                ["Label.MiniAuto"] = "Auto-open Mini List",
-                ["Label.Overview"] = "Back to Overview",
-                ["Label.NotInQuestline"] = "Not part of a Chain",
-                ["Label.ProgressResetOnWipe"] = "Warning! This Quest's Progress resets on Wipe",
-                ["Label.NoRewards"] = "No rewards configured.",
-                ["Label.NoObjectives"] = "No objectives configured.",
-                ["Label.RewardCount"] = "{0} Rewards",
-                ["Msg.FooterHint"] = "Start the Quest to begin progressing through the Objectives",
-                ["Label.ActiveSummary"] = "Active",
-                ["Label.CompletedSummary"] = "Completed",
-                ["Label.TrackedSummary"] = "Tracked",
-                ["Label.Stages"] = "Chain Stages",
-                ["Badge.DailyQuest"] = "Daily Quest",
-                ["Badge.Questline"] = "Chain",
-                ["Badge.StandardQuest"] = "Quest",
-                ["Msg.NoPermission"] = "You do not have permission for this quest.",
-                ["Msg.QuestStarted"] = "Quest started: {0}",
-                ["Msg.QuestCancelled"] = "Quest cancelled: {0}",
-                ["Msg.QuestClaimed"] = "Quest completed: {0}",
-                ["Msg.QuestTracked"] = "Tracked quest updated: {0}",
-                ["Msg.QuestReady"] = "Quest is ready to claim: {0}",
-                ["Msg.CooldownFinished"] = "Quest is available again: {0}",
-                ["Msg.NothingToSubmit"] = "You do not have the required items to submit.",
-                ["Msg.Submitted"] = "Submitted progress for quest: {0}",
-                ["Msg.MaxActive"] = "You have reached the active quest limit.",
-                ["Msg.AlreadyActive"] = "This quest is already active.",
-                ["Msg.CannotStart"] = "This quest cannot be started right now.",
-                ["Msg.NotReady"] = "Quest is not ready to claim.",
-                ["Msg.ResetDone"] = "Quest progress has been reset for player {0}.",
-                ["Msg.StatQueued"] = "Statistics publishing started.",
-                ["Msg.UnknownQuest"] = "Quest not found.",
-                ["Msg.NoActiveQuests"] = "No active quests.",
-                ["Msg.TrackedQuestsLimit"] = "You have reached the tracked quests limit ({0})."
-            }, this, "en");
-
-            lang.RegisterMessages(new Dictionary<string, string>
-            {
-                ["Title"] = "BQuest",
-                ["Tab.Quests"] = "Квесты",
-                ["Tab.Daily"] = "Ежедневные",
-                ["Tab.Questlines"] = "Цепочки",
-                ["Filter.All"] = "Все",
-                ["Filter.Available"] = "Доступные",
-                ["Filter.Started"] = "Активные",
-                ["Filter.ReadyToClaim"] = "Готовы",
-                ["Filter.Completed"] = "Завершенные",
-                ["Filter.Tracked"] = "Отслеживаемые",
-                ["Filter.OnCooldown"] = "Откат",
-                ["Status.Available"] = "Доступен",
-                ["Status.Started"] = "Активен",
-                ["Status.ReadyToClaim"] = "Готов к сдаче",
-                ["Status.Completed"] = "Завершен",
-                ["Status.Tracked"] = "Отслеживается",
-                ["Status.OnCooldown"] = "На откате",
-                ["Action.Start"] = "Начать квест",
-                ["Action.Cancel"] = "Отменить квест",
-                ["Action.Track"] = "Отслеживать",
-                ["Action.Untrack"] = "Убрать из трекинга",
-                ["Action.Claim"] = "Получить награду",
-                ["Action.Submit"] = "Сдать предметы",
-                ["Action.Settings"] = "Настройки",
-                ["Action.Close"] = "Закрыть",
-                ["Action.OpenMini"] = "Мини-список",
-                ["Action.SettingsShort"] = "Настр",
-                ["Action.CloseShort"] = "Закрыть",
-                ["Action.OpenMiniShort"] = "Мини",
-                ["Action.Back"] = "Назад",
-                ["Label.Objectives"] = "Цели",
-                ["Label.Rewards"] = "Награды",
-                ["Label.QuestRewards"] = "Quest Rewards",
-                ["Label.FilterState"] = "Нажмите, чтобы фильтровать по статусу",
-                ["Label.Tracked"] = "Отслеживаемый квест",
-                ["Label.Cooldowns"] = "Ближайшие кулдауны",
-                ["Label.Questlines"] = "Прогресс цепочки",
-                ["Label.Settings"] = "Настройки уведомлений",
-                ["Label.ProgressToasts"] = "Всплывающий прогресс",
-                ["Label.ChatMessages"] = "Сообщения в чат",
-                ["Label.MiniAuto"] = "Автооткрытие мини-списка",
-                ["Label.Overview"] = "Назад к обзору",
-                ["Label.NotInQuestline"] = "Не входит в цепочку",
-                ["Label.ProgressResetOnWipe"] = "Внимание! Прогресс этого квеста сбрасывается при вайпе",
-                ["Label.NoRewards"] = "Награды не настроены.",
-                ["Label.NoObjectives"] = "Цели не настроены.",
-                ["Label.RewardCount"] = "{0} Rewards",
-                ["Msg.FooterHint"] = "Start the Quest to begin progressing through the Objectives",
-                ["Label.ActiveSummary"] = "Активно",
-                ["Label.CompletedSummary"] = "Завершено",
-                ["Label.TrackedSummary"] = "Трекинг",
-                ["Label.Stages"] = "Этапы цепочки",
-                ["Badge.DailyQuest"] = "Daily Quest",
-                ["Badge.Questline"] = "Цепочка",
-                ["Badge.StandardQuest"] = "Квест",
-                ["Msg.NoPermission"] = "У вас нет прав на этот квест.",
-                ["Msg.QuestStarted"] = "Квест начат: {0}",
-                ["Msg.QuestCancelled"] = "Квест отменен: {0}",
-                ["Msg.QuestClaimed"] = "Квест завершен: {0}",
-                ["Msg.QuestTracked"] = "Отслеживаемый квест обновлен: {0}",
-                ["Msg.QuestReady"] = "Квест готов к получению награды: {0}",
-                ["Msg.CooldownFinished"] = "Квест снова доступен: {0}",
-                ["Msg.NothingToSubmit"] = "У вас нет подходящих предметов для сдачи.",
-                ["Msg.Submitted"] = "Прогресс по сдаче обновлен: {0}",
-                ["Msg.MaxActive"] = "Достигнут лимит активных квестов.",
-                ["Msg.AlreadyActive"] = "Этот квест уже активен.",
-                ["Msg.CannotStart"] = "Сейчас нельзя начать этот квест.",
-                ["Msg.NotReady"] = "Квест еще не готов к сдаче.",
-                ["Msg.ResetDone"] = "Прогресс квестов сброшен для игрока {0}.",
-                ["Msg.StatQueued"] = "Публикация статистики запущена.",
-                ["Msg.UnknownQuest"] = "Квест не найден.",
-                ["Msg.NoActiveQuests"] = "Нет активных квестов.",
-                ["Msg.TrackedQuestsLimit"] = "Достигнут лимит отслеживаемых квестов ({0})."
-            }, this, "ru");
-        }
+        // Локализация загружается автоматически из lang/en/BQuest.json и lang/ru/BQuest.json
 
         private void RegisterQuestPermissions()
         {
@@ -1523,13 +1407,7 @@ namespace Oxide.Plugins
             AddLabel(container, rowName, GetQuestTitle(player, quest), 13, isSelected ? _config.Theme.Text : "0.88 0.88 0.88 1", "0.19 0.42", "0.72 0.86", TextAnchor.MiddleLeft);
             AddLabel(container, rowName, GetQuestListSubtitle(player, quest), 10, _config.Theme.TextMuted, "0.19 0.10", "0.72 0.40", TextAnchor.MiddleLeft);
             AddLabel(container, rowName, GetMsg("Status." + status, player.UserIDString), 9, _config.Theme.TextMuted, "0.72 0.54", "0.95 0.84", TextAnchor.MiddleRight);
-            
-            var rowMeta = GetQuestRowMeta(player, quest);
-            if (!string.IsNullOrEmpty(rowMeta))
-            {
-                AddLabel(container, rowName, rowMeta, 9, _config.Theme.TextMuted, "0.72 0.12", "0.95 0.40", TextAnchor.MiddleRight);
-            }
-            
+
             AddOverlayButton(container, rowName, "UI_Handler select " + quest.QuestID);
             y += 60f;
         }
@@ -1610,13 +1488,7 @@ namespace Oxide.Plugins
             AddLabel(container, rowName, GetQuestTitle(player, quest), 13, isSelected ? _config.Theme.Text : "0.88 0.88 0.88 1", "0.19 0.42", "0.72 0.86", TextAnchor.MiddleLeft);
             AddLabel(container, rowName, GetQuestListSubtitle(player, quest), 10, _config.Theme.TextMuted, "0.19 0.10", "0.72 0.40", TextAnchor.MiddleLeft);
             AddLabel(container, rowName, GetMsg("Status." + status, player.UserIDString), 9, _config.Theme.TextMuted, "0.72 0.54", "0.95 0.84", TextAnchor.MiddleRight);
-            
-            var rowMeta = GetQuestRowMeta(player, quest);
-            if (!string.IsNullOrEmpty(rowMeta))
-            {
-                AddLabel(container, rowName, rowMeta, 9, _config.Theme.TextMuted, "0.72 0.12", "0.95 0.40", TextAnchor.MiddleRight);
-            }
-            
+
             AddOverlayButton(container, rowName, "UI_Handler linequest " + quest.QuestID);
             y += 60f;
         }
@@ -1704,7 +1576,7 @@ namespace Oxide.Plugins
             // Заголовок поднят на уровень 0.63 - 0.69
             AddLabel(container, parent, GetMsg("Label.Objectives", player.UserIDString), 18, _config.Theme.Text, "0.04 0.63", "0.34 0.69", TextAnchor.MiddleLeft);
 
-            var objective = quest.Objectives.Where(x => !x.Hidden).OrderBy(x => x.Order).FirstOrDefault();
+            var objective = GetActiveDisplayObjective(player.userID, quest);
             if (objective == null)
             {
                 AddLabel(container, parent, GetMsg("Label.NoObjectives", player.UserIDString), 11, _config.Theme.TextMuted, "0.04 0.50", "0.40 0.58", TextAnchor.MiddleLeft);
@@ -1915,7 +1787,8 @@ namespace Oxide.Plugins
             EnsurePlayerData(player.userID);
 
             var progress = GetPlayerProgress(player.userID);
-            var activeQuests = progress.ActiveQuests.Keys
+            var activeQuests = progress.TrackedQuestIds
+                .Where(progress.ActiveQuests.ContainsKey)
                 .Select(FindQuest)
                 .Where(x => x != null)
                 .OrderByDescending(x => IsQuestReadyToClaim(player, x))
@@ -1932,34 +1805,36 @@ namespace Oxide.Plugins
             var state = GetUiState(player.userID);
             state.MiniOpen = true;
 
-            var pageSize = Math.Max(1, _config.Ui.MiniListPerPage);
-            var pageCount = Math.Max(1, Mathf.CeilToInt(activeQuests.Count / (float)pageSize));
-            state.MiniPage = Mathf.Clamp(state.MiniPage, 0, pageCount - 1);
-            var paged = activeQuests.Skip(state.MiniPage * pageSize).Take(pageSize).ToList();
+            var paged = activeQuests;
 
             var container = new CuiElementContainer();
-            container.Add(new CuiPanel
+            container.Add(new CuiElement
             {
-                Image = { Color = _config.Theme.Panel },
-                RectTransform = { AnchorMin = "0.74 0.22", AnchorMax = "0.97 0.55" },
-                CursorEnabled = false
-            }, "Hud", MiniUiName);
+                Name = MiniUiName,
+                Parent = "Hud",
+                Components =
+                {
+                    new CuiImageComponent { Color = "0.11 0.12 0.15 0.72" },
+                    new CuiRectTransformComponent
+                    {
+                        AnchorMin = "0.001 0.173",
+                        AnchorMax = "0.1785 0.833"
+                    }
+                }
+            });
 
-            AddLabel(container, MiniUiName, GetMsg("Title", player.UserIDString), 13, _config.Theme.Text, "0.05 0.90", "0.85 0.98", TextAnchor.MiddleLeft);
-            AddButton(container, MiniUiName, _config.Theme.Danger, "X", 11, "0.87 0.90", "0.96 0.98", "CloseMiniQuestList");
-
-            var y = 0.82f;
+            var y = 0.98f;
             foreach (var quest in paged)
             {
                 var status = IsQuestReadyToClaim(player, quest) ? GetMsg("Status.ReadyToClaim", player.UserIDString) : GetQuestCompletionText(player, quest);
-                AddLabel(container, MiniUiName, GetQuestTitle(player, quest), 11, _config.Theme.Accent, string.Format(CultureInfo.InvariantCulture, "0.05 {0}", y - 0.08f), string.Format(CultureInfo.InvariantCulture, "0.95 {0}", y), TextAnchor.MiddleLeft);
-                AddLabel(container, MiniUiName, status, 10, _config.Theme.TextMuted, string.Format(CultureInfo.InvariantCulture, "0.05 {0}", y - 0.16f), string.Format(CultureInfo.InvariantCulture, "0.95 {0}", y - 0.08f), TextAnchor.MiddleLeft);
-                y -= 0.18f;
+                AddLabel(container, MiniUiName, TrimUiText(GetQuestTitle(player, quest), 24), 11, _config.Theme.Accent, string.Format(CultureInfo.InvariantCulture, "0.07 {0}", y - 0.04f), string.Format(CultureInfo.InvariantCulture, "0.95 {0}", y), TextAnchor.MiddleLeft);
+                AddLabel(container, MiniUiName, TrimUiText(status, 34), 10, _config.Theme.TextMuted, string.Format(CultureInfo.InvariantCulture, "0.07 {0}", y - 0.075f), string.Format(CultureInfo.InvariantCulture, "0.95 {0}", y - 0.04f), TextAnchor.MiddleLeft);
+                y -= 0.09f;
             }
 
-            AddButton(container, MiniUiName, _config.Theme.PanelAlt, "<", 11, "0.05 0.04", "0.16 0.12", "UI_Handler minipage prev");
-            AddLabel(container, MiniUiName, string.Format("{0}/{1}", state.MiniPage + 1, pageCount), 11, _config.Theme.Text, "0.18 0.04", "0.36 0.12", TextAnchor.MiddleCenter);
-            AddButton(container, MiniUiName, _config.Theme.PanelAlt, ">", 11, "0.38 0.04", "0.49 0.12", "UI_Handler minipage next");
+            var closeName = MiniUiName + ".Close";
+            AddPanel(container, MiniUiName, closeName, "0 0 0 0", "0.84 0.92", "1.00 1.00");
+            AddStyledButton(container, closeName, "0 0 0 0.01", "X", 12, _config.Theme.Text, "0 0", "1 1", "CloseMiniQuestList");
 
             CuiHelper.AddUi(player, container);
         }
@@ -1973,7 +1848,7 @@ namespace Oxide.Plugins
             container.Add(new CuiPanel
             {
                 Image = { Color = _config.Theme.Panel },
-                RectTransform = { AnchorMin = "0.68 0.55", AnchorMax = "0.92 0.83" }
+                RectTransform = { AnchorMin = "0.38 0.36", AnchorMax = "0.62 0.64" }
             }, MainUiName + ".Root", SettingsUiName);
 
             AddLabel(container, SettingsUiName, GetMsg("Label.Settings", player.UserIDString), 13, _config.Theme.Text, "0.05 0.84", "0.95 0.96", TextAnchor.MiddleLeft);
@@ -1991,6 +1866,26 @@ namespace Oxide.Plugins
         private void DestroyMiniUi(BasePlayer player)
         {
             CuiHelper.DestroyUi(player, MiniUiName);
+        }
+
+        private void QueueMiniPositionSave(ulong userId)
+        {
+            DestroyMiniPositionSaveTimer(userId);
+            _miniPositionSaveTimers[userId] = timer.Once(0.5f, delegate
+            {
+                _miniPositionSaveTimers.Remove(userId);
+                SavePlayerData();
+            });
+        }
+
+        private void DestroyMiniPositionSaveTimer(ulong userId)
+        {
+            Timer saveTimer;
+            if (_miniPositionSaveTimers.TryGetValue(userId, out saveTimer))
+            {
+                saveTimer.Destroy();
+                _miniPositionSaveTimers.Remove(userId);
+            }
         }
 
         private void DestroyToast(BasePlayer player)
@@ -2020,11 +1915,12 @@ namespace Oxide.Plugins
 
             DestroyToast(player);
 
+            var toastAnchors = GetToastAnchors();
             var container = new CuiElementContainer();
             container.Add(new CuiPanel
             {
                 Image = { Color = _config.Theme.PanelAlt },
-                RectTransform = { AnchorMin = "0.73 0.84", AnchorMax = "0.97 0.92" }
+                RectTransform = { AnchorMin = toastAnchors.Item1, AnchorMax = toastAnchors.Item2 }
             }, "Hud", ToastUiName);
             AddLabel(container, ToastUiName, message, 12, _config.Theme.Text, "0.04 0.12", "0.96 0.88", TextAnchor.MiddleCenter);
             CuiHelper.AddUi(player, container);
@@ -2033,6 +1929,21 @@ namespace Oxide.Plugins
                 CuiHelper.DestroyUi(player, ToastUiName);
                 _toastTimers.Remove(player.userID);
             });
+        }
+
+        private Tuple<string, string> GetToastAnchors()
+        {
+            switch ((_config.Settings.NotificationPosition ?? "TopLeft").ToLowerInvariant())
+            {
+                case "topleft":
+                    return Tuple.Create("0.03 0.84", "0.27 0.92");
+                case "bottomleft":
+                    return Tuple.Create("0.03 0.08", "0.27 0.16");
+                case "bottomright":
+                    return Tuple.Create("0.73 0.08", "0.97 0.16");
+                default:
+                    return Tuple.Create("0.03 0.84", "0.27 0.92");
+            }
         }
 
         private void StartQuest(BasePlayer player, long questId)
@@ -2081,12 +1992,6 @@ namespace Oxide.Plugins
             progress.ClaimedRewards[questId] = false;
             _statistics.TakenTasks++;
             SaveAllData();
-
-            if (progress.NotificationSettings.MiniListAutoShow)
-            {
-                GetUiState(player.userID).MiniOpen = true;
-                RenderMiniUi(player);
-            }
 
             SendLocalizedMessage(player, "Msg.QuestStarted", GetQuestTitle(player, quest));
         }
@@ -2191,6 +2096,11 @@ namespace Oxide.Plugins
                 }
                 progress.TrackedQuestIds.Add(questId);
                 changed = true;
+
+                if (progress.NotificationSettings.MiniListAutoShow)
+                {
+                    GetUiState(player.userID).MiniOpen = true;
+                }
             }
 
             if (changed)
@@ -2212,6 +2122,24 @@ namespace Oxide.Plugins
                 return;
             }
 
+            if (!HasStagedSubmissionObjective(quest))
+            {
+                if (!CanSubmitQuestItems(player.userID, quest))
+                {
+                    SendLocalizedMessage(player, "Msg.NothingToSubmit");
+                    return;
+                }
+
+                SubmitQuestItemsPartial(player, questId, quest);
+                return;
+            }
+
+            if (!CanSubmitQuestItems(player.userID, quest))
+            {
+                SendLocalizedMessage(player, "Msg.SubmitLocked");
+                return;
+            }
+
             var progress = GetPlayerProgress(player.userID);
             ActiveQuestRecord record;
             if (!progress.ActiveQuests.TryGetValue(questId, out record))
@@ -2219,6 +2147,65 @@ namespace Oxide.Plugins
                 return;
             }
 
+            var submissionObjectives = quest.Objectives
+                .Where(x => x.SubmissionRequired)
+                .Where(x => GetObjectiveProgress(player.userID, questId, x.ObjectiveId) < x.TargetCount)
+                .ToList();
+
+            if (submissionObjectives.Count == 0)
+            {
+                SendLocalizedMessage(player, "Msg.NothingToSubmit");
+                return;
+            }
+
+            foreach (var objective in submissionObjectives)
+            {
+                var current = GetObjectiveProgress(player.userID, questId, objective.ObjectiveId);
+                var missing = objective.TargetCount - current;
+                if (missing <= 0)
+                {
+                    continue;
+                }
+
+                if (CountItemsForObjective(player, objective) < missing)
+                {
+                    SendLocalizedMessage(player, "Msg.NotEnoughToSubmit");
+                    return;
+                }
+            }
+
+            foreach (var objective in submissionObjectives)
+            {
+                var current = GetObjectiveProgress(player.userID, questId, objective.ObjectiveId);
+                var missing = objective.TargetCount - current;
+                if (missing <= 0)
+                {
+                    continue;
+                }
+
+                var submitted = TakeItemsForObjective(player, objective, missing);
+                if (submitted < missing)
+                {
+                    PrintWarning(string.Format("Failed to submit required items for quest {0}, objective {1}.", quest.QuestID, objective.ObjectiveId));
+                    SendLocalizedMessage(player, "Msg.NotEnoughToSubmit");
+                    return;
+                }
+
+                ApplyObjectiveProgress(player, quest, objective, missing, true);
+            }
+
+            if (IsQuestReadyToClaim(player, quest))
+            {
+                ClaimQuest(player, questId);
+                return;
+            }
+
+            SendLocalizedMessage(player, "Msg.Submitted", GetQuestTitle(player, quest));
+            RenderMiniUiIfNeeded(player);
+        }
+
+        private void SubmitQuestItemsPartial(BasePlayer player, long questId, QuestDefinition quest)
+        {
             var changed = false;
             foreach (var objective in quest.Objectives.Where(x => x.SubmissionRequired))
             {
@@ -2292,6 +2279,35 @@ namespace Oxide.Plugins
             }
 
             return taken;
+        }
+
+        private int CountItemsForObjective(BasePlayer player, ObjectiveDefinition objective)
+        {
+            var total = 0;
+            var containers = new[]
+            {
+                player.inventory.containerMain,
+                player.inventory.containerBelt,
+                player.inventory.containerWear
+            };
+
+            foreach (var container in containers)
+            {
+                if (container == null)
+                {
+                    continue;
+                }
+
+                foreach (var item in container.itemList)
+                {
+                    if (item != null && IsObjectiveMatch(objective, item.info.shortname, item.skin))
+                    {
+                        total += item.amount;
+                    }
+                }
+            }
+
+            return total;
         }
 
         private bool GiveRewards(BasePlayer player, QuestDefinition quest)
@@ -2511,6 +2527,11 @@ namespace Oxide.Plugins
                 }
 
                 var state = GetUiState(player.userID);
+                if (state.MiniOpen)
+                {
+                    RenderMiniUi(player);
+                }
+
                 if (!state.MainOpen)
                 {
                     continue;
@@ -2802,6 +2823,8 @@ namespace Oxide.Plugins
                 return;
             }
 
+            var wasReadyToSubmit = IsQuestReadyToSubmit(player.userID, quest);
+
             int current;
             record.ObjectiveProgress.TryGetValue(objective.ObjectiveId, out current);
             var next = Mathf.Clamp(current + amount, 0, objective.TargetCount);
@@ -2820,6 +2843,10 @@ namespace Oxide.Plugins
             if (IsQuestReadyToClaim(player, quest))
             {
                 SendLocalizedMessage(player, "Msg.QuestReady", GetQuestTitle(player, quest));
+            }
+            else if (!wasReadyToSubmit && IsQuestReadyToSubmit(player.userID, quest))
+            {
+                SendLocalizedMessage(player, "Msg.QuestReadyToSubmit", GetQuestTitle(player, quest));
             }
 
             if (GetUiState(player.userID).MainOpen)
@@ -2847,6 +2874,11 @@ namespace Oxide.Plugins
                 case "fishing": return 12;
                 case "growseedlings": return 13;
                 case "delivery": return 14;
+                case "bossmonster": return 15;
+                case "airevent": return 16;
+                case "supermarketevent": return 17;
+                case "harborevent": return 18;
+                case "raidablebases": return 19;
                 default: return 0;
             }
         }
@@ -2886,6 +2918,23 @@ namespace Oxide.Plugins
             var candidates = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             AddObjectiveMatchCandidate(candidates, target);
             AddObjectiveMatchCandidate(candidates, entityName);
+            if (!string.IsNullOrEmpty(entityName))
+            {
+                foreach (var chunk in entityName.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    var token = chunk.Trim();
+                    if (string.IsNullOrEmpty(token))
+                    {
+                        continue;
+                    }
+
+                    var shortName = ExtractShortName(token);
+                    if (!string.IsNullOrEmpty(shortName))
+                    {
+                        candidates.Add(shortName);
+                    }
+                }
+            }
             return candidates;
         }
 
@@ -2926,6 +2975,84 @@ namespace Oxide.Plugins
             }
         }
 
+        private string ExtractShortName(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return string.Empty;
+            }
+
+            var token = value.Trim();
+            if (token.Length == 0)
+            {
+                return string.Empty;
+            }
+
+            var slashIndex = token.LastIndexOf('/');
+            if (slashIndex >= 0 && slashIndex + 1 < token.Length)
+            {
+                token = token.Substring(slashIndex + 1);
+            }
+
+            if (token.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase))
+            {
+                token = token.Substring(0, token.Length - ".prefab".Length);
+            }
+
+            var cloneSuffixIndex = token.IndexOf("(Clone)", StringComparison.OrdinalIgnoreCase);
+            if (cloneSuffixIndex >= 0)
+            {
+                token = token.Substring(0, cloneSuffixIndex);
+            }
+
+            return token.Trim();
+        }
+
+        private string BuildEntityKillDescriptor(BaseCombatEntity entity)
+        {
+            var tokens = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            AddObjectiveMatchCandidate(tokens, entity.ShortPrefabName);
+            AddObjectiveMatchCandidate(tokens, entity.PrefabName);
+            AddObjectiveMatchCandidate(tokens, entity.name);
+            AddObjectiveMatchCandidate(tokens, entity.gameObject != null ? entity.gameObject.name : null);
+            AddObjectiveMatchCandidate(tokens, entity.GetType().Name);
+
+            var parentEntity = entity.GetParentEntity();
+            if (parentEntity != null)
+            {
+                AddObjectiveMatchCandidate(tokens, parentEntity.ShortPrefabName);
+                AddObjectiveMatchCandidate(tokens, parentEntity.PrefabName);
+                AddObjectiveMatchCandidate(tokens, parentEntity.name);
+            }
+
+            if (entity.transform != null && entity.transform.parent != null)
+            {
+                AddObjectiveMatchCandidate(tokens, entity.transform.parent.name);
+            }
+
+            return string.Join("|", tokens.Where(token => !string.IsNullOrEmpty(token)).ToArray());
+        }
+
+        private string BuildBossDescriptor(BaseCombatEntity boss)
+        {
+            if (boss == null)
+            {
+                return "BossMonster";
+            }
+
+            var tokens = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var bossPlayer = boss as BasePlayer;
+
+            AddObjectiveMatchCandidate(tokens, bossPlayer != null ? bossPlayer.displayName : null);
+            AddObjectiveMatchCandidate(tokens, boss.ShortPrefabName);
+            AddObjectiveMatchCandidate(tokens, boss.PrefabName);
+            AddObjectiveMatchCandidate(tokens, boss.name);
+            AddObjectiveMatchCandidate(tokens, boss.gameObject != null ? boss.gameObject.name : null);
+            AddObjectiveMatchCandidate(tokens, boss.GetType().Name);
+
+            return string.Join("|", tokens.Where(token => !string.IsNullOrEmpty(token)).ToArray());
+        }
+
         private int GetObjectiveProgress(ulong userId, long questId, string objectiveId)
         {
             var progress = GetPlayerProgress(userId);
@@ -2947,6 +3074,35 @@ namespace Oxide.Plugins
             }
 
             return Mathf.Clamp(GetObjectiveProgress(userId, questId, objective.ObjectiveId), 0, Math.Max(1, objective.TargetCount));
+        }
+
+        private ObjectiveDefinition GetActiveDisplayObjective(ulong userId, QuestDefinition quest)
+        {
+            if (quest == null || quest.Objectives == null)
+            {
+                return null;
+            }
+
+            var ordered = quest.Objectives.Where(x => !x.Hidden).OrderBy(x => x.Order).ToList();
+            foreach (var objective in ordered)
+            {
+                if (GetObjectiveProgress(userId, quest.QuestID, objective.ObjectiveId) < objective.TargetCount)
+                {
+                    return objective;
+                }
+            }
+
+            return ordered.FirstOrDefault();
+        }
+
+        private bool IsQuestReadyToSubmit(ulong userId, QuestDefinition quest)
+        {
+            if (quest == null || !HasStagedSubmissionObjective(quest) || !CanSubmitQuestItems(userId, quest))
+            {
+                return false;
+            }
+
+            return quest.Objectives.Any(x => x.SubmissionRequired && GetObjectiveProgress(userId, quest.QuestID, x.ObjectiveId) < x.TargetCount);
         }
 
         private PlayerProgress GetPlayerProgress(ulong userId)
@@ -3045,6 +3201,29 @@ namespace Oxide.Plugins
             return quest.Objectives.Any(x => x.SubmissionRequired);
         }
 
+        private bool HasStagedSubmissionObjective(QuestDefinition quest)
+        {
+            return quest != null && HasSubmissionObjective(quest) && quest.Objectives.Any(x => !x.SubmissionRequired);
+        }
+
+        private bool CanSubmitQuestItems(ulong userId, QuestDefinition quest)
+        {
+            if (quest == null || !HasSubmissionObjective(quest))
+            {
+                return false;
+            }
+
+            foreach (var objective in quest.Objectives.Where(x => !x.SubmissionRequired))
+            {
+                if (GetObjectiveProgress(userId, quest.QuestID, objective.ObjectiveId) < objective.TargetCount)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private IEnumerable<QuestDefinition> GetFilteredQuests(BasePlayer player, string tab, string filter)
         {
             IEnumerable<QuestDefinition> source = tab == "Daily" ? _dailyCatalog.DailyQuests : _questCatalog.Quests;
@@ -3052,6 +3231,15 @@ namespace Oxide.Plugins
 
             foreach (var quest in source.OrderBy(x => x.QuestCategory).ThenBy(x => x.QuestID))
             {
+                // На табе "Quests" показываем только обычные квесты (не Daily, не Questlines)
+                if (tab == "Quests")
+                {
+                    if (IsDailyQuest(quest) || quest.QuestlineId > 0)
+                    {
+                        continue;
+                    }
+                }
+
                 var status = GetQuestStatus(player, quest);
 
                 if (!_config.Ui.ShowLockedQuests && status == QuestStatus.Locked)
@@ -3194,14 +3382,14 @@ namespace Oxide.Plugins
 
         private string GetQuestCompletionText(BasePlayer player, QuestDefinition quest)
         {
-            var chunks = new List<string>();
-            foreach (var objective in quest.Objectives.OrderBy(x => x.Order))
+            var objective = GetActiveDisplayObjective(player.userID, quest);
+            if (objective == null)
             {
-                var value = GetObjectiveDisplayProgress(player.userID, quest.QuestID, objective);
-                chunks.Add(string.Format("{0}: {1}/{2}", GetObjectiveTitle(player, objective), value, objective.TargetCount));
+                return string.Empty;
             }
 
-            return string.Join(" | ", chunks.ToArray());
+            var value = GetObjectiveDisplayProgress(player.userID, quest.QuestID, objective);
+            return string.Format("{0}: {1}/{2}", GetObjectiveTitle(player, objective), value, objective.TargetCount);
         }
 
         private string GetQuestListSubtitle(BasePlayer player, QuestDefinition quest)
@@ -3352,16 +3540,6 @@ namespace Oxide.Plugins
             }
         }
 
-        private string GetQuestRowMeta(BasePlayer player, QuestDefinition quest)
-        {
-            if (quest.RequiredQuestIds.Count > 0 || quest.QuestlineId > 0)
-            {
-                return TrimUiText(GetQuestStageHint(player, quest), 24);
-            }
-
-            return string.Empty;
-        }
-
         private string GetQuestlineProgress(BasePlayer player, QuestlineDefinition line)
         {
             var progress = GetPlayerProgress(player.userID);
@@ -3399,25 +3577,6 @@ namespace Oxide.Plugins
             }
 
             return GetMsg("Badge.StandardQuest", player.UserIDString);
-        }
-
-        private string GetQuestStageHint(BasePlayer player, QuestDefinition quest)
-        {
-            if (quest.RequiredQuestIds.Count > 0)
-            {
-                var requiredQuest = FindQuest(quest.RequiredQuestIds[0]);
-                if (requiredQuest != null)
-                {
-                    return "Requires " + GetQuestTitle(player, requiredQuest);
-                }
-            }
-
-            if (quest.QuestlineId > 0 && quest.QuestlineOrder > 1)
-            {
-                return "Stage " + quest.QuestlineOrder;
-            }
-
-            return GetQuestCompletionText(player, quest);
         }
 
         private string GetPrizeTitle(PrizeDefinition prize)
@@ -3737,104 +3896,24 @@ namespace Oxide.Plugins
             }
         }
 
-        private string GetChromePanelColor()
-        {
-            return "0.08 0.08 0.08 0.97";
-        }
-
-        private string GetChromeHeaderColor()
-        {
-            return "0.18 0.16 0.13 0.98";
-        }
-
-        private string GetChromeInsetColor()
-        {
-            return "0.12 0.11 0.10 0.98";
-        }
-
-        private string GetChromeMutedColor()
-        {
-            return "0.20 0.18 0.15 0.98";
-        }
-
-        private string GetChromeBorderColor()
-        {
-            return "0.83 0.70 0.36 0.85";
-        }
-
-        private string GetUiWindowColor()
-        {
-            return "0.08 0.08 0.09 0.95";
-        }
-
-        private string GetUiSidebarColor()
-        {
-            return "0.10 0.10 0.11 0.94";
-        }
-
-        private string GetUiProfileColor()
-        {
-            return "0.14 0.14 0.15 0.96";
-        }
-
-        private string GetUiSoftColor()
-        {
-            return "0.15 0.15 0.16 0.96";
-        }
-
-        private string GetUiRowColor()
-        {
-            return "0.12 0.12 0.13 0.98";
-        }
-
-        private string GetUiSelectedColor()
-        {
-            return "0.18 0.17 0.15 0.98";
-        }
-
-        private string GetUiReadyColor()
-        {
-            return "0.17 0.18 0.15 0.98";
-        }
+        // Все цвета вынесены в _config.Theme.* — используются напрямую через helper-ы
+        private string GetUiWindowColor() { return _config.Theme.UiWindow; }
+        private string GetUiSidebarColor() { return _config.Theme.UiSidebar; }
+        private string GetUiProfileColor() { return _config.Theme.UiProfile; }
+        private string GetUiSoftColor() { return _config.Theme.UiSoft; }
+        private string GetUiRowColor() { return _config.Theme.UiRow; }
+        private string GetUiSelectedColor() { return _config.Theme.UiSelected; }
+        private string GetUiReadyColor() { return _config.Theme.UiReady; }
+        private string GetUiBorderColor() { return _config.Theme.UiBorder; }
+        private string GetUiGoldColor() { return _config.Theme.UiGold; }
+        private string GetUiGoldLineColor() { return _config.Theme.UiGoldLine; }
+        private string GetUiGoldFrameColor() { return _config.Theme.UiGoldFrame; }
+        private string GetUiFooterPanelColor() { return _config.Theme.UiFooter; }
 
         private string GetQuestListRowColor(QuestStatus status, bool isSelected)
         {
-            if (isSelected)
-            {
-                return GetUiSelectedColor();
-            }
-
-            return status == QuestStatus.ReadyToClaim ? GetUiReadyColor() : GetUiRowColor();
-        }
-
-        private string GetUiBorderColor()
-        {
-            return "0.22 0.22 0.24 0.95";
-        }
-
-        private string GetUiGoldColor()
-        {
-            return "0.90 0.76 0.36 1.0";
-        }
-
-        private string GetUiGoldLineColor()
-        {
-            return "0.59 0.50 0.25 1.0";
-        }
-
-        private string GetUiGoldFrameColor()
-        {
-            return "0.48 0.42 0.23 1.0";
-        }
-
-        private string GetUiFooterPanelColor()
-        {
-            return "0.16 0.15 0.14 0.92";
-        }
-
-        private string Rect(float x, float y, float w, float h)
-        {
-            return string.Format(CultureInfo.InvariantCulture, "{0} {1} {2} {3}", x, y, x + w, y + h);
+            if (isSelected) return _config.Theme.UiSelected;
+            return status == QuestStatus.ReadyToClaim ? _config.Theme.UiReady : _config.Theme.UiRow;
         }
 
         private string FormatDuration(double seconds)
@@ -3995,79 +4074,6 @@ namespace Oxide.Plugins
                     OffsetMax = string.Format(CultureInfo.InvariantCulture, "{0} {1}", half, half)
                 }
             }, parent, name);
-        }
-
-        private void AddChromePanel(CuiElementContainer container, string parent, string name, string color, string anchorMin, string anchorMax)
-        {
-            container.Add(new CuiPanel
-            {
-                Image = { Color = color },
-                RectTransform = { AnchorMin = anchorMin, AnchorMax = anchorMax }
-            }, parent, name);
-
-            container.Add(new CuiPanel
-            {
-                Image = { Color = GetChromeBorderColor() },
-                RectTransform = { AnchorMin = "0 0.98", AnchorMax = "1 1" }
-            }, name);
-
-            container.Add(new CuiPanel
-            {
-                Image = { Color = GetChromeBorderColor() },
-                RectTransform = { AnchorMin = "0 0", AnchorMax = "1 0.02" }
-            }, name);
-
-            container.Add(new CuiPanel
-            {
-                Image = { Color = GetChromeBorderColor() },
-                RectTransform = { AnchorMin = "0 0", AnchorMax = "0.01 1" }
-            }, name);
-
-            container.Add(new CuiPanel
-            {
-                Image = { Color = GetChromeBorderColor() },
-                RectTransform = { AnchorMin = "0.99 0", AnchorMax = "1 1" }
-            }, name);
-        }
-
-        private void AddSquareChromePanel(CuiElementContainer container, string parent, string name, string color, float anchorX, float anchorY, float size)
-        {
-            var half = size * 0.5f;
-            container.Add(new CuiPanel
-            {
-                Image = { Color = color },
-                RectTransform =
-                {
-                    AnchorMin = string.Format(CultureInfo.InvariantCulture, "{0} {1}", anchorX, anchorY),
-                    AnchorMax = string.Format(CultureInfo.InvariantCulture, "{0} {1}", anchorX, anchorY),
-                    OffsetMin = string.Format(CultureInfo.InvariantCulture, "{0} {1}", -half, -half),
-                    OffsetMax = string.Format(CultureInfo.InvariantCulture, "{0} {1}", half, half)
-                }
-            }, parent, name);
-
-            container.Add(new CuiPanel
-            {
-                Image = { Color = GetChromeBorderColor() },
-                RectTransform = { AnchorMin = "0 0.97", AnchorMax = "1 1" }
-            }, name);
-
-            container.Add(new CuiPanel
-            {
-                Image = { Color = GetChromeBorderColor() },
-                RectTransform = { AnchorMin = "0 0", AnchorMax = "1 0.03" }
-            }, name);
-
-            container.Add(new CuiPanel
-            {
-                Image = { Color = GetChromeBorderColor() },
-                RectTransform = { AnchorMin = "0 0", AnchorMax = "0.03 1" }
-            }, name);
-
-            container.Add(new CuiPanel
-            {
-                Image = { Color = GetChromeBorderColor() },
-                RectTransform = { AnchorMin = "0.97 0", AnchorMax = "1 1" }
-            }, name);
         }
 
         private void AddCornerFrame(CuiElementContainer container, string parent, string color)
@@ -4379,487 +4385,22 @@ namespace Oxide.Plugins
             };
         }
 
+        // Реальные квесты хранятся в JSON файлах, этот метод — fallback для первого запуска
         private QuestCatalog BuildDefaultQuestCatalog()
         {
-            return new QuestCatalog
-            {
-                Quests = new List<QuestDefinition>
-                {
-                    new QuestDefinition
-                    {
-                        QuestID = 1001,
-                        QuestDisplayName = "Stone Collector",
-                        QuestDisplayNameMultiLanguage = new Dictionary<string, string> { ["ru"] = "Сборщик камня", ["en"] = "Stone Collector" },
-                        QuestDescription = "Gather stone for your first tools.",
-                        QuestDescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Добудьте камень для первых инструментов.", ["en"] = "Gather stone for your first tools." },
-                        QuestMissions = "Gather 3000 stones.",
-                        QuestMissionsMultiLanguage = new Dictionary<string, string> { ["ru"] = "Соберите 3000 камня.", ["en"] = "Gather 3000 stones." },
-                        QuestType = "Gather",
-                        QuestCategory = "Starter",
-                        QuestTabType = "Quests",
-                        Objectives = new List<ObjectiveDefinition>
-                        {
-                            new ObjectiveDefinition
-                            {
-                                ObjectiveId = "1001_gather_stones",
-                                Type = "Gather",
-                                Target = "stones",
-                                TargetCount = 3000,
-                                Description = "Gather stones",
-                                DescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Соберите камень", ["en"] = "Gather stones" },
-                                MatchMode = "shortname"
-                            }
-                        },
-                        PrizeList = new List<PrizeDefinition>
-                        {
-                            new PrizeDefinition { PrizeName = "Stone Hatchet", PrizeType = "Item", ItemShortName = "stonehatchet", ItemAmount = 1 },
-                            new PrizeDefinition { PrizeName = "Wood", PrizeType = "Item", ItemShortName = "wood", ItemAmount = 1000 }
-                        },
-                        IsRepeatable = true,
-                        Cooldown = 60,
-                        AllowManualStart = true,
-                        AllowTrack = true,
-                        AllowCancel = true,
-                        AllowClaim = true
-                    },
-                    new QuestDefinition
-                    {
-                        QuestID = 1002,
-                        QuestDisplayName = "Barrel Hunter",
-                        QuestDisplayNameMultiLanguage = new Dictionary<string, string> { ["ru"] = "Охотник за бочками", ["en"] = "Barrel Hunter" },
-                        QuestDescription = "Destroy roadside barrels.",
-                        QuestDescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Уничтожьте дорожные бочки.", ["en"] = "Destroy roadside barrels." },
-                        QuestMissions = "Destroy 10 loot barrels.",
-                        QuestMissionsMultiLanguage = new Dictionary<string, string> { ["ru"] = "Уничтожьте 10 лутовых бочек.", ["en"] = "Destroy 10 loot barrels." },
-                        QuestType = "EntityKill",
-                        QuestCategory = "Misc. Quests",
-                        QuestTabType = "Quests",
-                        Objectives = new List<ObjectiveDefinition>
-                        {
-                            new ObjectiveDefinition
-                            {
-                                ObjectiveId = "1002_barrels",
-                                Type = "EntityKill",
-                                Target = "loot-barrel",
-                                TargetCount = 10,
-                                Description = "Destroy roadside barrels",
-                                DescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Ломайте дорожные бочки", ["en"] = "Destroy roadside barrels" },
-                                MatchMode = "prefab"
-                            }
-                        },
-                        PrizeList = new List<PrizeDefinition>
-                        {
-                            new PrizeDefinition { PrizeName = "Scrap", PrizeType = "Item", ItemShortName = "scrap", ItemAmount = 75 },
-                            new PrizeDefinition { PrizeName = "Wood", PrizeType = "Item", ItemShortName = "wood", ItemAmount = 1000 },
-                            new PrizeDefinition { PrizeName = "Stone", PrizeType = "Item", ItemShortName = "stones", ItemAmount = 1000 },
-                            new PrizeDefinition { PrizeName = "HQM", PrizeType = "Item", ItemShortName = "metal.refined", ItemAmount = 100 },
-                            new PrizeDefinition { PrizeName = "Stone Hatchet", PrizeType = "Item", ItemShortName = "stonehatchet", ItemAmount = 1 },
-                            new PrizeDefinition { PrizeName = "RP", PrizeType = "RP", ItemAmount = 50 }
-                        },
-                        IsRepeatable = true,
-                        Cooldown = 60
-                    },
-                    new QuestDefinition
-                    {
-                        QuestID = 3101,
-                        QuestDisplayName = "Frontier Step 1",
-                        QuestDisplayNameMultiLanguage = new Dictionary<string, string> { ["ru"] = "Путь: этап 1", ["en"] = "Frontier Step 1" },
-                        QuestDescription = "Gather wood to begin your journey.",
-                        QuestDescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Добудьте дерево, чтобы начать путь.", ["en"] = "Gather wood to begin your journey." },
-                        QuestMissions = "Gather 2500 wood.",
-                        QuestMissionsMultiLanguage = new Dictionary<string, string> { ["ru"] = "Соберите 2500 дерева.", ["en"] = "Gather 2500 wood." },
-                        QuestType = "Gather",
-                        QuestCategory = "Questline",
-                        QuestTabType = "Quests",
-                        QuestlineId = 3001,
-                        QuestlineOrder = 1,
-                        Objectives = new List<ObjectiveDefinition>
-                        {
-                            new ObjectiveDefinition
-                            {
-                                ObjectiveId = "3101_wood",
-                                Type = "Gather",
-                                Target = "wood",
-                                TargetCount = 2500,
-                                Description = "Gather wood",
-                                DescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Соберите дерево", ["en"] = "Gather wood" }
-                            }
-                        },
-                        PrizeList = new List<PrizeDefinition>
-                        {
-                            new PrizeDefinition { PrizeName = "Stone Pickaxe", PrizeType = "Item", ItemShortName = "stone.pickaxe", ItemAmount = 1 }
-                        },
-                        IsRepeatable = true,
-                        Cooldown = 60
-                    },
-                    new QuestDefinition
-                    {
-                        QuestID = 3102,
-                        QuestDisplayName = "Frontier Step 2",
-                        QuestDisplayNameMultiLanguage = new Dictionary<string, string> { ["ru"] = "Путь: этап 2", ["en"] = "Frontier Step 2" },
-                        QuestDescription = "Craft the first furnace parts.",
-                        QuestDescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Скрафтите первые материалы для печи.", ["en"] = "Craft the first furnace parts." },
-                        QuestMissions = "Craft 2 furnaces.",
-                        QuestMissionsMultiLanguage = new Dictionary<string, string> { ["ru"] = "Скрафтите 2 печи.", ["en"] = "Craft 2 furnaces." },
-                        QuestType = "Craft",
-                        QuestCategory = "Questline",
-                        QuestTabType = "Quests",
-                        QuestlineId = 3001,
-                        QuestlineOrder = 2,
-                        RequiredQuestIds = new List<long> { 3101 },
-                        Objectives = new List<ObjectiveDefinition>
-                        {
-                            new ObjectiveDefinition
-                            {
-                                ObjectiveId = "3102_furnace",
-                                Type = "Craft",
-                                Target = "furnace",
-                                TargetCount = 2,
-                                Description = "Craft furnaces",
-                                DescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Скрафтите печи", ["en"] = "Craft furnaces" }
-                            }
-                        },
-                        PrizeList = new List<PrizeDefinition>
-                        {
-                            new PrizeDefinition { PrizeName = "Metal Fragments", PrizeType = "Item", ItemShortName = "metal.fragments", ItemAmount = 500 }
-                        },
-                        IsRepeatable = true,
-                        Cooldown = 60
-                    },
-                    new QuestDefinition
-                    {
-                        QuestID = 3103,
-                        QuestDisplayName = "Frontier Step 3",
-                        QuestDisplayNameMultiLanguage = new Dictionary<string, string> { ["ru"] = "Путь: этап 3", ["en"] = "Frontier Step 3" },
-                        QuestDescription = "Submit metal fragments to the camp engineer.",
-                        QuestDescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Сдайте фрагменты металла инженеру лагеря.", ["en"] = "Submit metal fragments to the camp engineer." },
-                        QuestMissions = "Submit 500 metal fragments.",
-                        QuestMissionsMultiLanguage = new Dictionary<string, string> { ["ru"] = "Сдайте 500 фрагментов металла.", ["en"] = "Submit 500 metal fragments." },
-                        QuestType = "Delivery",
-                        QuestCategory = "Questline",
-                        QuestTabType = "Quests",
-                        QuestlineId = 3001,
-                        QuestlineOrder = 3,
-                        RequiredQuestIds = new List<long> { 3102 },
-                        Objectives = new List<ObjectiveDefinition>
-                        {
-                            new ObjectiveDefinition
-                            {
-                                ObjectiveId = "3103_submit_metal",
-                                Type = "Delivery",
-                                Target = "metal.fragments",
-                                TargetCount = 500,
-                                Description = "Submit metal fragments",
-                                DescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Сдайте фрагменты металла", ["en"] = "Submit metal fragments" },
-                                SubmissionRequired = true
-                            }
-                        },
-                        PrizeList = new List<PrizeDefinition>
-                        {
-                            new PrizeDefinition { PrizeName = "Revolver", PrizeType = "Item", ItemShortName = "pistol.revolver", ItemAmount = 1 }
-                        },
-                        IsRepeatable = true,
-                        Cooldown = 60
-                    },
-                    new QuestDefinition
-                    {
-                        QuestID = 1003,
-                        QuestDisplayName = "Supply Delivery",
-                        QuestDisplayNameMultiLanguage = new Dictionary<string, string> { ["ru"] = "Поставка припасов", ["en"] = "Supply Delivery" },
-                        QuestDescription = "Submit cloth to the quartermaster.",
-                        QuestDescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Сдайте ткань квартирмейстеру.", ["en"] = "Submit cloth to the quartermaster." },
-                        QuestMissions = "Submit 200 cloth.",
-                        QuestMissionsMultiLanguage = new Dictionary<string, string> { ["ru"] = "Сдайте 200 ткани.", ["en"] = "Submit 200 cloth." },
-                        QuestType = "Delivery",
-                        QuestCategory = "Starter",
-                        QuestTabType = "Quests",
-                        Objectives = new List<ObjectiveDefinition>
-                        {
-                            new ObjectiveDefinition
-                            {
-                                ObjectiveId = "1003_submit_cloth",
-                                Type = "Delivery",
-                                Target = "cloth",
-                                TargetCount = 200,
-                                Description = "Submit cloth",
-                                DescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Сдайте ткань", ["en"] = "Submit cloth" },
-                                MatchMode = "shortname",
-                                SubmissionRequired = true
-                            }
-                        },
-                        PrizeList = new List<PrizeDefinition>
-                        {
-                            new PrizeDefinition { PrizeName = "Medical Syringe", PrizeType = "Item", ItemShortName = "syringe.medical", ItemAmount = 5 },
-                            new PrizeDefinition { PrizeName = "Blueprint Fragments", PrizeType = "BlueprintFragments", ItemAmount = 30 }
-                        },
-                        IsRepeatable = true,
-                        Cooldown = 60
-                    },
-                    new QuestDefinition
-                    {
-                        QuestID = 1004,
-                        QuestDisplayName = "Wood Delivery",
-                        QuestDisplayNameMultiLanguage = new Dictionary<string, string> { ["ru"] = "Поставка дерева", ["en"] = "Wood Delivery" },
-                        QuestDescription = "Submit wood to the quartermaster.",
-                        QuestDescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Сдайте дерево квартирмейстеру.", ["en"] = "Submit wood to the quartermaster." },
-                        QuestMissions = "Submit 1000 wood.",
-                        QuestMissionsMultiLanguage = new Dictionary<string, string> { ["ru"] = "Сдайте 1000 дерева.", ["en"] = "Submit 1000 wood." },
-                        QuestType = "Delivery",
-                        QuestCategory = "Starter",
-                        QuestTabType = "Quests",
-                        Objectives = new List<ObjectiveDefinition>
-                        {
-                            new ObjectiveDefinition
-                            {
-                                ObjectiveId = "1004_submit_wood",
-                                Type = "Delivery",
-                                Target = "wood",
-                                TargetCount = 1000,
-                                Description = "Submit wood",
-                                DescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Сдайте дерево", ["en"] = "Submit wood" },
-                                SubmissionRequired = true
-                            }
-                        },
-                        PrizeList = new List<PrizeDefinition>
-                        {
-                            new PrizeDefinition { PrizeName = "Metal Fragments", PrizeType = "Item", ItemShortName = "metal.fragments", ItemAmount = 500 },
-                            new PrizeDefinition { PrizeName = "XP", PrizeType = "XP", ItemAmount = 4500 },
-                            new PrizeDefinition { PrizeName = "RP", PrizeType = "RP", ItemAmount = 9000 }
-                        },
-                        IsRepeatable = true,
-                        Cooldown = 30
-                    },
-                    new QuestDefinition
-                    {
-                        QuestID = 1005,
-                        QuestDisplayName = "Tunnel Dweller Hunt",
-                        QuestDisplayNameMultiLanguage = new Dictionary<string, string> { ["ru"] = "Охота на Tunnel Dweller", ["en"] = "Tunnel Dweller Hunt" },
-                        QuestDescription = "Eliminate tunnel dwellers in the underground tunnels.",
-                        QuestDescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Уничтожьте Tunnel Dweller в подземных туннелях.", ["en"] = "Eliminate tunnel dwellers in the underground tunnels." },
-                        QuestMissions = "Kill 3 tunnel dwellers.",
-                        QuestMissionsMultiLanguage = new Dictionary<string, string> { ["ru"] = "Убейте 3 Tunnel Dweller.", ["en"] = "Kill 3 tunnel dwellers." },
-                        QuestType = "EntityKill",
-                        QuestCategory = "Misc. Quests",
-                        QuestTabType = "Quests",
-                        Objectives = new List<ObjectiveDefinition>
-                        {
-                            new ObjectiveDefinition
-                            {
-                                ObjectiveId = "1005_tunneldweller",
-                                Type = "EntityKill",
-                                Target = "tunneldweller",
-                                MatchAliases = new List<string> { "tunnel dweller", "tunneldweller", "dweller" },
-                                TargetCount = 3,
-                                Description = "Kill tunnel dwellers",
-                                DescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Убейте Tunnel Dweller", ["en"] = "Kill tunnel dwellers" },
-                                MatchMode = "contains"
-                            }
-                        },
-                        PrizeList = new List<PrizeDefinition>
-                        {
-                            new PrizeDefinition { PrizeName = "MP5A4", PrizeType = "Item", ItemShortName = "smg.mp5", ItemAmount = 1 },
-                            new PrizeDefinition { PrizeName = "XP", PrizeType = "XP", ItemAmount = 7000 },
-                            new PrizeDefinition { PrizeName = "RP", PrizeType = "RP", ItemAmount = 12000 }
-                        },
-                        IsRepeatable = true,
-                        Cooldown = 60
-                    },
-                    new QuestDefinition
-                    {
-                        QuestID = 1006,
-                        QuestDisplayName = "Scientist Sweep",
-                        QuestDisplayNameMultiLanguage = new Dictionary<string, string> { ["ru"] = "Зачистка ученых", ["en"] = "Scientist Sweep" },
-                        QuestDescription = "Eliminate roaming scientists.",
-                        QuestDescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Уничтожьте обычных ученых.", ["en"] = "Eliminate roaming scientists." },
-                        QuestMissions = "Kill 3 scientists.",
-                        QuestMissionsMultiLanguage = new Dictionary<string, string> { ["ru"] = "Убейте 3 ученых.", ["en"] = "Kill 3 scientists." },
-                        QuestType = "EntityKill",
-                        QuestCategory = "Misc. Quests",
-                        QuestTabType = "Quests",
-                        Objectives = new List<ObjectiveDefinition>
-                        {
-                            new ObjectiveDefinition
-                            {
-                                ObjectiveId = "1006_scientist",
-                                Type = "EntityKill",
-                                Target = "scientistnpc",
-                                MatchAliases = new List<string> { "scientist", "npcscientist" },
-                                TargetCount = 3,
-                                Description = "Kill scientists",
-                                DescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Убейте ученых", ["en"] = "Kill scientists" },
-                                MatchMode = "contains"
-                            }
-                        },
-                        PrizeList = new List<PrizeDefinition>
-                        {
-                            new PrizeDefinition { PrizeName = "Assault Rifle", PrizeType = "Item", ItemShortName = "rifle.ak", ItemAmount = 1 },
-                            new PrizeDefinition { PrizeName = "XP", PrizeType = "XP", ItemAmount = 9000 },
-                            new PrizeDefinition { PrizeName = "RP", PrizeType = "RP", ItemAmount = 14000 }
-                        },
-                        IsRepeatable = true,
-                        Cooldown = 60
-                    },
-                    new QuestDefinition
-                    {
-                        QuestID = 1007,
-                        QuestDisplayName = "Heavy Scientist Hunt",
-                        QuestDisplayNameMultiLanguage = new Dictionary<string, string> { ["ru"] = "Охота на Heavy Scientist", ["en"] = "Heavy Scientist Hunt" },
-                        QuestDescription = "Eliminate heavy scientists.",
-                        QuestDescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Уничтожьте Heavy Scientist.", ["en"] = "Eliminate heavy scientists." },
-                        QuestMissions = "Kill 3 heavy scientists.",
-                        QuestMissionsMultiLanguage = new Dictionary<string, string> { ["ru"] = "Убейте 3 Heavy Scientist.", ["en"] = "Kill 3 heavy scientists." },
-                        QuestType = "EntityKill",
-                        QuestCategory = "Misc. Quests",
-                        QuestTabType = "Quests",
-                        Objectives = new List<ObjectiveDefinition>
-                        {
-                            new ObjectiveDefinition
-                            {
-                                ObjectiveId = "1007_heavy_scientist",
-                                Type = "EntityKill",
-                                Target = "scientistnpc_heavy",
-                                MatchAliases = new List<string> { "heavyscientist", "heavy scientist", "scientistnpcheavy" },
-                                TargetCount = 3,
-                                Description = "Kill heavy scientists",
-                                DescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Убейте Heavy Scientist", ["en"] = "Kill heavy scientists" },
-                                MatchMode = "contains"
-                            }
-                        },
-                        PrizeList = new List<PrizeDefinition>
-                        {
-                            new PrizeDefinition { PrizeName = "M249", PrizeType = "Item", ItemShortName = "lmg.m249", ItemAmount = 1 },
-                            new PrizeDefinition { PrizeName = "XP", PrizeType = "XP", ItemAmount = 12000 },
-                            new PrizeDefinition { PrizeName = "RP", PrizeType = "RP", ItemAmount = 18000 }
-                        },
-                        IsRepeatable = true,
-                        Cooldown = 60
-                    },
-                    CreateGatherQuest(1101, "Wood Collector I", "Сбор дерева I", "Gather a starter stockpile of wood.", "Соберите стартовый запас дерева.", "Gather 5000 wood.", "Соберите 5000 дерева.", "Wood", "wood", 5000, "Gather wood", "Соберите дерево", "Scrap", "scrap", 75),
-                    CreateGatherQuest(1102, "Wood Collector II", "Сбор дерева II", "Gather more wood for expansion.", "Соберите больше дерева для расширения базы.", "Gather 10000 wood.", "Соберите 10000 дерева.", "Wood", "wood", 10000, "Gather wood", "Соберите дерево", "Scrap", "scrap", 150),
-                    CreateGatherQuest(1103, "Wood Collector III", "Сбор дерева III", "Stockpile enough wood for a serious build.", "Подготовьте серьезный запас дерева для стройки.", "Gather 20000 wood.", "Соберите 20000 дерева.", "Wood", "wood", 20000, "Gather wood", "Соберите дерево", "Scrap", "scrap", 300),
-                    CreateGatherQuest(1104, "Wood Collector IV", "Сбор дерева IV", "Keep the furnaces and walls fed with wood.", "Поддерживайте стройку и печи большим запасом дерева.", "Gather 50000 wood.", "Соберите 50000 дерева.", "Wood", "wood", 50000, "Gather wood", "Соберите дерево", "Scrap", "scrap", 700),
-                    CreateGatherQuest(1105, "Wood Collector V", "Сбор дерева V", "Finish a massive lumber run.", "Завершите огромный лесной забег.", "Gather 100000 wood.", "Соберите 100000 дерева.", "Wood", "wood", 100000, "Gather wood", "Соберите дерево", "Scrap", "scrap", 1500),
-                    CreateGatherQuest(1111, "Stone Collector I", "Сбор камня I", "Bring in stone for your base shell.", "Добудьте камень для основы базы.", "Gather 5000 stones.", "Соберите 5000 камня.", "Stone", "stones", 5000, "Gather stone", "Соберите камень", "Metal Fragments", "metal.fragments", 250),
-                    CreateGatherQuest(1112, "Stone Collector II", "Сбор камня II", "Expand your quarry run.", "Увеличьте добычу камня.", "Gather 10000 stones.", "Соберите 10000 камня.", "Stone", "stones", 10000, "Gather stone", "Соберите камень", "Metal Fragments", "metal.fragments", 500),
-                    CreateGatherQuest(1113, "Stone Collector III", "Сбор камня III", "Keep the stone stockpile growing.", "Продолжайте наращивать запасы камня.", "Gather 20000 stones.", "Соберите 20000 камня.", "Stone", "stones", 20000, "Gather stone", "Соберите камень", "Metal Fragments", "metal.fragments", 1000),
-                    CreateGatherQuest(1114, "Stone Collector IV", "Сбор камня IV", "Build a serious reserve of stone.", "Соберите серьезный запас камня.", "Gather 50000 stones.", "Соберите 50000 камня.", "Stone", "stones", 50000, "Gather stone", "Соберите камень", "Metal Fragments", "metal.fragments", 2500),
-                    CreateGatherQuest(1115, "Stone Collector V", "Сбор камня V", "Finish a massive stone haul.", "Завершите огромную добычу камня.", "Gather 100000 stones.", "Соберите 100000 камня.", "Stone", "stones", 100000, "Gather stone", "Соберите камень", "Metal Fragments", "metal.fragments", 5000),
-                    CreateGatherQuest(1121, "Metal Collector I", "Сбор фрагментов I", "Bring back refined metal fragments for production.", "Добудьте фрагменты металла для производства.", "Gather 5000 metal fragments.", "Соберите 5000 фрагментов металла.", "Metal", "metal.fragments", 5000, "Gather metal fragments", "Соберите фрагменты металла", "Scrap", "scrap", 100),
-                    CreateGatherQuest(1122, "Metal Collector II", "Сбор фрагментов II", "Keep the metal reserve moving upward.", "Продолжайте пополнять запас фрагментов металла.", "Gather 10000 metal fragments.", "Соберите 10000 фрагментов металла.", "Metal", "metal.fragments", 10000, "Gather metal fragments", "Соберите фрагменты металла", "Scrap", "scrap", 200),
-                    CreateGatherQuest(1123, "Metal Collector III", "Сбор фрагментов III", "Prepare a serious smelting reserve.", "Подготовьте серьезный запас металла.", "Gather 20000 metal fragments.", "Соберите 20000 фрагментов металла.", "Metal", "metal.fragments", 20000, "Gather metal fragments", "Соберите фрагменты металла", "Scrap", "scrap", 400),
-                    CreateGatherQuest(1124, "Metal Collector IV", "Сбор фрагментов IV", "Push your metal reserve to industrial scale.", "Разгоните запас металла до промышленного уровня.", "Gather 50000 metal fragments.", "Соберите 50000 фрагментов металла.", "Metal", "metal.fragments", 50000, "Gather metal fragments", "Соберите фрагменты металла", "Scrap", "scrap", 800),
-                    CreateGatherQuest(1125, "Metal Collector V", "Сбор фрагментов V", "Finish the ultimate metal stockpile.", "Завершите максимальный запас фрагментов металла.", "Gather 100000 metal fragments.", "Соберите 100000 фрагментов металла.", "Metal", "metal.fragments", 100000, "Gather metal fragments", "Соберите фрагменты металла", "Scrap", "scrap", 1600),
-                    CreateGatherQuest(1131, "Scrap Collector I", "Сбор скрапа I", "Bring home a first batch of scrap.", "Принесите первую партию скрапа.", "Gather 5000 scrap.", "Соберите 5000 скрапа.", "Scrap", "scrap", 5000, "Gather scrap", "Соберите скрап", "Low Grade Fuel", "lowgradefuel", 50),
-                    CreateGatherQuest(1132, "Scrap Collector II", "Сбор скрапа II", "Expand your scrap route.", "Расширьте маршрут по сбору скрапа.", "Gather 10000 scrap.", "Соберите 10000 скрапа.", "Scrap", "scrap", 10000, "Gather scrap", "Соберите скрап", "Low Grade Fuel", "lowgradefuel", 100),
-                    CreateGatherQuest(1133, "Scrap Collector III", "Сбор скрапа III", "Bring in a serious recycler run.", "Сделайте серьезный заход на переработку.", "Gather 20000 scrap.", "Соберите 20000 скрапа.", "Scrap", "scrap", 20000, "Gather scrap", "Соберите скрап", "Low Grade Fuel", "lowgradefuel", 200),
-                    CreateGatherQuest(1134, "Scrap Collector IV", "Сбор скрапа IV", "Keep the recycler busy and the scrap flowing.", "Поддерживайте стабильный приток скрапа.", "Gather 50000 scrap.", "Соберите 50000 скрапа.", "Scrap", "scrap", 50000, "Gather scrap", "Соберите скрап", "Low Grade Fuel", "lowgradefuel", 400),
-                    CreateGatherQuest(1135, "Scrap Collector V", "Сбор скрапа V", "Complete a giant scrap haul.", "Завершите гигантский сбор скрапа.", "Gather 100000 scrap.", "Соберите 100000 скрапа.", "Scrap", "scrap", 100000, "Gather scrap", "Соберите скрап", "Low Grade Fuel", "lowgradefuel", 800),
-                    CreateDeployQuest(3201, 3002, 1, 0, "Base Builder: Foundations", "Строитель базы: фундаменты", "Lay down the first foundations of your base.", "Заложите первые фундаменты своей базы.", "Place 10 foundations.", "Поставьте 10 фундаментов.", "foundation", 10, "Place foundations", "Поставьте фундаменты", "building.planner", "Wood", "wood", 3000),
-                    CreateDeployQuest(3202, 3002, 2, 3201, "Base Builder: Tool Cupboard", "Строитель базы: шкаф", "Secure the base with a tool cupboard.", "Защитите базу шкафом с инструментами.", "Place a tool cupboard.", "Поставьте шкаф.", "cupboard.tool", 1, "Place a tool cupboard", "Поставьте шкаф", "cupboard.tool", "Stone", "stones", 3000),
-                    CreateDeployQuest(3203, 3002, 3, 3202, "Base Builder: Workbench 1", "Строитель базы: верстак 1", "Set up the first workbench for crafting.", "Установите первый верстак для крафта.", "Place a level 1 workbench.", "Поставьте верстак 1 уровня.", "workbench1", 1, "Place a level 1 workbench", "Поставьте верстак 1 уровня", "workbench1", "Metal Fragments", "metal.fragments", 500),
-                    CreateDeployQuest(3204, 3002, 4, 3203, "Base Builder: Workbench 2", "Строитель базы: верстак 2", "Upgrade your production line with a better bench.", "Улучшите производство новым верстаком.", "Place a level 2 workbench.", "Поставьте верстак 2 уровня.", "workbench2", 1, "Place a level 2 workbench", "Поставьте верстак 2 уровня", "workbench2", "Metal Fragments", "metal.fragments", 1000),
-                    CreateDeployQuest(3205, 3002, 5, 3204, "Base Builder: Workbench 3", "Строитель базы: верстак 3", "Finish the crafting chain with the top bench.", "Завершите цепочку крафта топовым верстаком.", "Place a level 3 workbench.", "Поставьте верстак 3 уровня.", "workbench3", 1, "Place a level 3 workbench", "Поставьте верстак 3 уровня", "workbench3", "Scrap", "scrap", 300),
-                    CreateDeployQuest(3206, 3002, 6, 3205, "Base Builder: Wooden Door", "Строитель базы: деревянная дверь", "Close off the entrance with a wooden door.", "Закройте вход деревянной дверью.", "Place a wooden door.", "Поставьте деревянную дверь.", "door.hinged.wood", 1, "Place a wooden door", "Поставьте деревянную дверь", "door.hinged.wood", "Wood", "wood", 1000),
-                    CreateDeployQuest(3207, 3002, 7, 3206, "Base Builder: Sheet Door", "Строитель базы: железная дверь", "Upgrade the entrance with a sheet metal door.", "Укрепите вход железной дверью.", "Place a sheet metal door.", "Поставьте железную дверь.", "door.hinged.metal", 1, "Place a sheet metal door", "Поставьте железную дверь", "door.hinged.metal", "Metal Fragments", "metal.fragments", 750),
-                    CreateDeployQuest(3208, 3002, 8, 3207, "Base Builder: Armored Door", "Строитель базы: МВК дверь", "Finish your entrance with an armored door.", "Завершите укрепление входа МВК дверью.", "Place an armored door.", "Поставьте МВК дверь.", "door.hinged.toptier", 1, "Place an armored door", "Поставьте МВК дверь", "door.hinged.toptier", "HQM", "metal.refined", 25)
-                }
-            };
+            return new QuestCatalog { Quests = new List<QuestDefinition>() };
         }
 
+        // Реальные квесты хранятся в JSON файлах, этот метод — fallback для первого запуска
         private DailyCatalog BuildDefaultDailyCatalog()
         {
-            return new DailyCatalog
-            {
-                DailyQuests = new List<QuestDefinition>
-                {
-                    new QuestDefinition
-                    {
-                        QuestID = 2001,
-                        QuestDisplayName = "Daily Lumberjack",
-                        QuestDisplayNameMultiLanguage = new Dictionary<string, string> { ["ru"] = "Ежедневный лесоруб", ["en"] = "Daily Lumberjack" },
-                        QuestDescription = "Gather wood for the camp.",
-                        QuestDescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Добудьте дерево для лагеря.", ["en"] = "Gather wood for the camp." },
-                        QuestMissions = "Gather 5000 wood.",
-                        QuestMissionsMultiLanguage = new Dictionary<string, string> { ["ru"] = "Соберите 5000 дерева.", ["en"] = "Gather 5000 wood." },
-                        QuestType = "Gather",
-                        QuestCategory = "Daily",
-                        QuestTabType = "Daily",
-                        Objectives = new List<ObjectiveDefinition>
-                        {
-                            new ObjectiveDefinition
-                            {
-                                ObjectiveId = "2001_wood",
-                                Type = "Gather",
-                                Target = "wood",
-                                TargetCount = 5000,
-                                Description = "Gather wood",
-                                DescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Соберите дерево", ["en"] = "Gather wood" }
-                            }
-                        },
-                        PrizeList = new List<PrizeDefinition>
-                        {
-                            new PrizeDefinition { PrizeName = "Scrap", PrizeType = "Item", ItemShortName = "scrap", ItemAmount = 125 }
-                        },
-                        IsRepeatable = true,
-                        Cooldown = 60
-                    },
-                    new QuestDefinition
-                    {
-                        QuestID = 2002,
-                        QuestDisplayName = "Daily Crafter",
-                        QuestDisplayNameMultiLanguage = new Dictionary<string, string> { ["ru"] = "Ежедневный крафтер", ["en"] = "Daily Crafter" },
-                        QuestDescription = "Craft resources for the workshop.",
-                        QuestDescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Скрафтите ресурсы для мастерской.", ["en"] = "Craft resources for the workshop." },
-                        QuestMissions = "Craft 10 bandages.",
-                        QuestMissionsMultiLanguage = new Dictionary<string, string> { ["ru"] = "Скрафтите 10 бинтов.", ["en"] = "Craft 10 bandages." },
-                        QuestType = "Craft",
-                        QuestCategory = "Daily",
-                        QuestTabType = "Daily",
-                        Objectives = new List<ObjectiveDefinition>
-                        {
-                            new ObjectiveDefinition
-                            {
-                                ObjectiveId = "2002_bandage",
-                                Type = "Craft",
-                                Target = "bandage",
-                                TargetCount = 10,
-                                Description = "Craft bandages",
-                                DescriptionMultiLanguage = new Dictionary<string, string> { ["ru"] = "Создайте бинты", ["en"] = "Craft bandages" }
-                            }
-                        },
-                        PrizeList = new List<PrizeDefinition>
-                        {
-                            new PrizeDefinition { PrizeName = "Low Grade Fuel", PrizeType = "Item", ItemShortName = "lowgradefuel", ItemAmount = 50 }
-                        },
-                        IsRepeatable = true,
-                        Cooldown = 60
-                    }
-                }
-            };
+            return new DailyCatalog { DailyQuests = new List<QuestDefinition>() };
         }
 
+        // Реальные квесты хранятся в JSON файлах, этот метод — fallback для первого запуска
         private QuestlineCatalog BuildDefaultQuestlineCatalog()
         {
-            return new QuestlineCatalog
-            {
-                Questlines = new List<QuestlineDefinition>
-                {
-                    new QuestlineDefinition
-                    {
-                        QuestlineId = 3001,
-                        DisplayName = "Frontier Path",
-                        DisplayNameMultiLanguage = new Dictionary<string, string> { ["ru"] = "Путь первопроходца", ["en"] = "Frontier Path" },
-                        StageQuestIds = new List<long> { 3101, 3102, 3103 }
-                    },
-                    new QuestlineDefinition
-                    {
-                        QuestlineId = 3002,
-                        DisplayName = "Base Builder",
-                        DisplayNameMultiLanguage = new Dictionary<string, string> { ["ru"] = "Строительство базы", ["en"] = "Base Builder" },
-                        StageQuestIds = new List<long> { 3201, 3202, 3203, 3204, 3205, 3206, 3207, 3208 }
-                    }
-                }
-            };
+            return new QuestlineCatalog { Questlines = new List<QuestlineDefinition>() };
         }
 
         private object OnDispenserGather(ResourceDispenser dispenser, BaseEntity entity, Item item)
@@ -4912,7 +4453,14 @@ namespace Oxide.Plugins
                 return;
             }
 
-            ProcessProgress(crafter.owner, "Craft", item.info.shortname, item.amount, item.skin, item, null);
+            var targetShortName = item.info.shortname;
+            if (task != null && task.blueprint != null && task.blueprint.targetItem != null && !string.IsNullOrEmpty(task.blueprint.targetItem.shortname))
+            {
+                targetShortName = task.blueprint.targetItem.shortname;
+            }
+
+            var craftedAmount = Math.Max(1, item.amount);
+            ProcessProgress(crafter.owner, "Craft", targetShortName, craftedAmount, item.skin, item, null);
         }
 
         private void OnStructureUpgrade(BuildingBlock block, BasePlayer player, BuildingGrade.Enum grade)
@@ -5031,13 +4579,14 @@ namespace Oxide.Plugins
                 return;
             }
 
-            if (entity is BasePlayer)
+            var victimPlayer = entity as BasePlayer;
+            if (victimPlayer != null && victimPlayer.userID.IsSteamId())
             {
                 return;
             }
 
             var entityTarget = entity.ShortPrefabName ?? string.Empty;
-            var entityDescriptor = string.Format("{0}|{1}|{2}", entityTarget, entity.name ?? string.Empty, entity.GetType().Name ?? string.Empty);
+            var entityDescriptor = BuildEntityKillDescriptor(entity);
             ProcessProgress(player, "EntityKill", entityTarget, 1, 0, null, entityDescriptor);
         }
 
@@ -5081,99 +4630,76 @@ namespace Oxide.Plugins
             ProcessProgress(player, "PurchaseFromNpc", item.info.shortname, item.amount, item.skin, item, null);
         }
 
-        private void OnRaidableBaseCompleted(BasePlayer player)
+        // Event-хуки — однострочные делегаты через общий метод
+        private void OnRaidableBaseCompleted(object location, int level, bool allowPvp, ulong ownerId, object raiders)
         {
+            var player = BasePlayer.FindByID(ownerId) ?? BasePlayer.FindSleeping(ownerId);
+            if (player == null)
+            {
+                return;
+            }
+
+            var difficulty = GetRaidableBaseDifficultyName(level);
+            ProcessProgress(player, "RaidableBases", difficulty, 1, 0, null, difficulty);
+        }
+        private void OnAirEventWinner(ulong winnerId)
+        {
+            var player = BasePlayer.FindByID(winnerId) ?? BasePlayer.FindSleeping(winnerId);
             if (player != null)
             {
-                ProcessProgress(player, "RaidableBases", "RaidableBases", 1, 0, null, "RaidableBases");
+                OnGenericEvent(player, "AirEvent");
             }
         }
-
-        private void OnBossKilled(BasePlayer player)
+        private void OnSupermarketEventWinner(ulong winnerId)
         {
+            var player = BasePlayer.FindByID(winnerId) ?? BasePlayer.FindSleeping(winnerId);
             if (player != null)
             {
-                ProcessProgress(player, "BossMonster", "BossMonster", 1, 0, null, "BossMonster");
+                OnGenericEvent(player, "SupermarketEvent");
             }
         }
-
-        private void OnDroneKilled(BasePlayer player)
+        private void OnBossKilled(BaseCombatEntity boss, BasePlayer player)
         {
+            if (player == null)
+            {
+                return;
+            }
+
+            ProcessProgress(player, "BossMonster", "BossMonster", 1, 0, null, BuildBossDescriptor(boss));
+        }
+        private void OnDroneKilled(BasePlayer player) => OnGenericEvent(player, "IQDronePatrol");
+        private void OnLootedDefenderSupply(BasePlayer player) => OnGenericEvent(player, "IQDefenderSupply");
+        private void OnHarborEventWinner(ulong winnerId)
+        {
+            var player = BasePlayer.FindByID(winnerId) ?? BasePlayer.FindSleeping(winnerId);
             if (player != null)
             {
-                ProcessProgress(player, "IQDronePatrol", "IQDronePatrol", 1, 0, null, "IQDronePatrol");
+                OnGenericEvent(player, "HarborEvent");
             }
         }
+        private void OnSatDishEventWinner(BasePlayer player) => OnGenericEvent(player, "SatelliteDishEvent");
+        private void OnSputnikEventWin(BasePlayer player) => OnGenericEvent(player, "Sputnik");
+        private void OnGasStationEventWinner(BasePlayer player) => OnGenericEvent(player, "GasStationEvent");
+        private void OnTriangulationWinner(BasePlayer player) => OnGenericEvent(player, "Triangulation");
+        private void OnFerryTerminalEventWinner(BasePlayer player) => OnGenericEvent(player, "FerryTerminalEvent");
+        private void OnConvoyEventWin(BasePlayer player) => OnGenericEvent(player, "Convoy");
+        private void OnCaravanEventWin(BasePlayer player) => OnGenericEvent(player, "Caravan");
 
-        private void OnLootedDefenderSupply(BasePlayer player)
+        private void OnGenericEvent(BasePlayer player, string eventType)
         {
-            if (player != null)
-            {
-                ProcessProgress(player, "IQDefenderSupply", "IQDefenderSupply", 1, 0, null, "IQDefenderSupply");
-            }
+            if (player != null) ProcessProgress(player, eventType, eventType, 1, 0, null, eventType);
         }
 
-        private void OnHarborEventWinner(BasePlayer player)
+        private string GetRaidableBaseDifficultyName(int level)
         {
-            if (player != null)
+            switch (level)
             {
-                ProcessProgress(player, "HarborEvent", "HarborEvent", 1, 0, null, "HarborEvent");
-            }
-        }
-
-        private void OnSatDishEventWinner(BasePlayer player)
-        {
-            if (player != null)
-            {
-                ProcessProgress(player, "SatelliteDishEvent", "SatelliteDishEvent", 1, 0, null, "SatelliteDishEvent");
-            }
-        }
-
-        private void OnSputnikEventWin(BasePlayer player)
-        {
-            if (player != null)
-            {
-                ProcessProgress(player, "Sputnik", "Sputnik", 1, 0, null, "Sputnik");
-            }
-        }
-
-        private void OnGasStationEventWinner(BasePlayer player)
-        {
-            if (player != null)
-            {
-                ProcessProgress(player, "GasStationEvent", "GasStationEvent", 1, 0, null, "GasStationEvent");
-            }
-        }
-
-        private void OnTriangulationWinner(BasePlayer player)
-        {
-            if (player != null)
-            {
-                ProcessProgress(player, "Triangulation", "Triangulation", 1, 0, null, "Triangulation");
-            }
-        }
-
-        private void OnFerryTerminalEventWinner(BasePlayer player)
-        {
-            if (player != null)
-            {
-                ProcessProgress(player, "FerryTerminalEvent", "FerryTerminalEvent", 1, 0, null, "FerryTerminalEvent");
-            }
-        }
-
-        private void OnConvoyEventWin(BasePlayer player)
-        {
-            if (player != null)
-            {
-                ProcessProgress(player, "Convoy", "Convoy", 1, 0, null, "Convoy");
-            }
-        }
-
-        private void OnCaravanEventWin(BasePlayer player)
-        {
-            if (player != null)
-            {
-                ProcessProgress(player, "Caravan", "Caravan", 1, 0, null, "Caravan");
+                case 0: return "Easy";
+                case 1: return "Medium";
+                case 2: return "Hard";
+                case 3: return "Expert";
+                case 4: return "Nightmare";
+                default: return "Unknown";
             }
         }
 

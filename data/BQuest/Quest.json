@@ -88,14 +88,24 @@
         {
           "ObjectiveId": "1002_barrels",
           "Type": "EntityKill",
-          "Target": "loot-barrel",
+          "Target": "barrel|loot-barrel",
+          "MatchAliases": [
+            "loot-barrel",
+            "barrel_wood",
+            "barrel_metal",
+            "barrel_blue",
+            "barrel_green",
+            "barrel_white",
+            "barrel_rust",
+            "barrel_fuel"
+          ],
           "TargetCount": 10,
           "Description": "Destroy roadside barrels",
           "DescriptionMultiLanguage": {
             "ru": "Ломайте дорожные бочки",
             "en": "Destroy roadside barrels"
           },
-          "MatchMode": "prefab"
+          "MatchMode": "contains"
         }
       ],
       "PrizeList": [
@@ -259,60 +269,189 @@
       "IsRepeatable": true
     },
     {
-      "QuestID": 1005,
-      "QuestDisplayName": "Tunnel Dweller Hunt",
+      "QuestID": 1301,
+      "QuestDisplayName": "Pumpkin Farmer",
       "QuestDisplayNameMultiLanguage": {
-        "ru": "Охота на Tunnel Dweller",
-        "en": "Tunnel Dweller Hunt"
+        "ru": "Фермер тыкв",
+        "en": "Pumpkin Farmer"
       },
-      "QuestDescription": "Eliminate tunnel dwellers in the underground tunnels.",
+      "QuestDescription": "Grow, harvest and deliver pumpkins.",
       "QuestDescriptionMultiLanguage": {
-        "ru": "Уничтожьте Tunnel Dweller в подземных туннелях.",
-        "en": "Eliminate tunnel dwellers in the underground tunnels."
+        "ru": "Вырастите, соберите и сдайте тыквы.",
+        "en": "Grow, harvest and deliver pumpkins."
       },
-      "QuestMissions": "Kill 3 tunnel dwellers.",
+      "QuestMissions": "Harvest 10 pumpkins and submit them.",
       "QuestMissionsMultiLanguage": {
-        "ru": "Убейте 3 Tunnel Dweller.",
-        "en": "Kill 3 tunnel dwellers."
+        "ru": "Соберите 10 тыкв и сдайте их.",
+        "en": "Harvest 10 pumpkins and submit them."
       },
-      "QuestType": "EntityKill",
-      "QuestCategory": "Misc. Quests",
+      "QuestType": "Growseedlings",
+      "QuestCategory": "Фермер",
       "QuestTabType": "Quests",
       "Objectives": [
         {
-          "ObjectiveId": "1005_tunneldweller",
-          "Type": "EntityKill",
-          "Target": "tunneldweller",
-          "MatchAliases": [
-            "tunnel dweller",
-            "tunneldweller",
-            "dweller"
-          ],
-          "TargetCount": 3,
-          "Description": "Kill tunnel dwellers",
+          "ObjectiveId": "1301_grow_pumpkin",
+          "Type": "Growseedlings",
+          "Target": "pumpkin",
+          "TargetCount": 10,
+          "Description": "Harvest pumpkins",
           "DescriptionMultiLanguage": {
-            "ru": "Убейте Tunnel Dweller",
-            "en": "Kill tunnel dwellers"
+            "ru": "Соберите тыквы",
+            "en": "Harvest pumpkins"
+          }
+        },
+        {
+          "ObjectiveId": "1301_submit_pumpkin",
+          "Type": "Delivery",
+          "Target": "pumpkin",
+          "TargetCount": 10,
+          "Hidden": true,
+          "Description": "Submit pumpkins",
+          "DescriptionMultiLanguage": {
+            "ru": "Сдайте тыквы",
+            "en": "Submit pumpkins"
           },
-          "MatchMode": "contains"
+          "SubmissionRequired": true
         }
       ],
       "PrizeList": [
         {
-          "PrizeName": "MP5A4",
+          "PrizeName": "Cloth",
           "PrizeType": "Item",
-          "ItemShortName": "smg.mp5",
-          "ItemAmount": 1
+          "ItemShortName": "cloth",
+          "ItemAmount": 250
         },
         {
           "PrizeName": "XP",
           "PrizeType": "XP",
-          "ItemAmount": 7000
+          "ItemAmount": 5000
         },
         {
           "PrizeName": "RP",
           "PrizeType": "RP",
-          "ItemAmount": 12000
+          "ItemAmount": 8000
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1302,
+      "QuestDisplayName": "C4 Contractor",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Поставщик С4",
+        "en": "C4 Contractor"
+      },
+      "QuestDescription": "Craft and deliver timed explosives.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Создайте и сдайте заряды С4.",
+        "en": "Craft and deliver timed explosives."
+      },
+      "QuestMissions": "Craft 10 C4 and submit them.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Создайте 10 С4 и сдайте их.",
+        "en": "Craft 10 C4 and submit them."
+      },
+      "QuestType": "Craft",
+      "QuestCategory": "Крафт",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1302_craft_c4",
+          "Type": "Craft",
+          "Target": "explosive.timed",
+          "TargetCount": 10,
+          "Description": "Craft C4",
+          "DescriptionMultiLanguage": {
+            "ru": "Создайте С4",
+            "en": "Craft C4"
+          }
+        },
+        {
+          "ObjectiveId": "1302_submit_c4",
+          "Type": "Delivery",
+          "Target": "explosive.timed",
+          "TargetCount": 10,
+          "Hidden": true,
+          "Description": "Submit C4",
+          "DescriptionMultiLanguage": {
+            "ru": "Сдайте С4",
+            "en": "Submit C4"
+          },
+          "SubmissionRequired": true
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Rocket",
+          "PrizeType": "Item",
+          "ItemShortName": "ammo.rocket.basic",
+          "ItemAmount": 10
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 15000
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 20000
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1303,
+      "QuestDisplayName": "Fuel Delivery",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Поставка топлива",
+        "en": "Fuel Delivery"
+      },
+      "QuestDescription": "Submit low grade fuel.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Сдайте топливо низкого качества.",
+        "en": "Submit low grade fuel."
+      },
+      "QuestMissions": "Submit 100 low grade fuel.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Сдайте 100 топлива низкого качества.",
+        "en": "Submit 100 low grade fuel."
+      },
+      "QuestType": "Delivery",
+      "QuestCategory": "Крафт",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1303_submit_lowgradefuel",
+          "Type": "Delivery",
+          "Target": "lowgradefuel",
+          "TargetCount": 100,
+          "Description": "Submit low grade fuel",
+          "DescriptionMultiLanguage": {
+            "ru": "Сдайте топливо низкого качества",
+            "en": "Submit low grade fuel"
+          },
+          "SubmissionRequired": true
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Scrap",
+          "PrizeType": "Item",
+          "ItemShortName": "scrap",
+          "ItemAmount": 250
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 6000
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 9000
         }
       ],
       "Cooldown": 60,
@@ -320,15 +459,15 @@
     },
     {
       "QuestID": 1006,
-      "QuestDisplayName": "Scientist Sweep",
+      "QuestDisplayName": "Scientist Hunt",
       "QuestDisplayNameMultiLanguage": {
-        "ru": "Зачистка ученых",
-        "en": "Scientist Sweep"
+        "ru": "Охота на ученых",
+        "en": "Scientist Hunt"
       },
-      "QuestDescription": "Eliminate roaming scientists.",
+      "QuestDescription": "Eliminate scientists.",
       "QuestDescriptionMultiLanguage": {
-        "ru": "Уничтожьте обычных ученых.",
-        "en": "Eliminate roaming scientists."
+        "ru": "Уничтожьте ученых.",
+        "en": "Eliminate scientists."
       },
       "QuestMissions": "Kill 3 scientists.",
       "QuestMissionsMultiLanguage": {
@@ -342,10 +481,12 @@
         {
           "ObjectiveId": "1006_scientist",
           "Type": "EntityKill",
-          "Target": "scientistnpc",
+          "Target": "scientist",
           "MatchAliases": [
             "scientist",
-            "npcscientist"
+            "npcscientist",
+            "scientistnpc",
+            "scientistnpc_heavy"
           ],
           "TargetCount": 3,
           "Description": "Kill scientists",
@@ -379,49 +520,209 @@
     },
     {
       "QuestID": 1007,
-      "QuestDisplayName": "Heavy Scientist Hunt",
+      "QuestDisplayName": "Boss Hunter",
       "QuestDisplayNameMultiLanguage": {
-        "ru": "Охота на Heavy Scientist",
-        "en": "Heavy Scientist Hunt"
+        "ru": "Охота на боссов",
+        "en": "Boss Hunter"
       },
-      "QuestDescription": "Eliminate heavy scientists.",
+      "QuestDescription": "Defeat bosses from the BossMonster event.",
       "QuestDescriptionMultiLanguage": {
-        "ru": "Уничтожьте Heavy Scientist.",
-        "en": "Eliminate heavy scientists."
+        "ru": "Победите боссов из BossMonster.",
+        "en": "Defeat bosses from the BossMonster event."
       },
-      "QuestMissions": "Kill 3 heavy scientists.",
+      "QuestMissions": "Kill 3 bosses.",
       "QuestMissionsMultiLanguage": {
-        "ru": "Убейте 3 Heavy Scientist.",
-        "en": "Kill 3 heavy scientists."
+        "ru": "Убейте 3 боссов.",
+        "en": "Kill 3 bosses."
       },
-      "QuestType": "EntityKill",
+      "QuestType": "BossMonster",
       "QuestCategory": "Misc. Quests",
       "QuestTabType": "Quests",
       "Objectives": [
         {
-          "ObjectiveId": "1007_heavy_scientist",
-          "Type": "EntityKill",
-          "Target": "scientistnpc_heavy",
-          "MatchAliases": [
-            "heavyscientist",
-            "heavy scientist",
-            "scientistnpcheavy"
-          ],
+          "ObjectiveId": "1007_bossmonster",
+          "Type": "BossMonster",
+          "Target": "BossMonster",
           "TargetCount": 3,
-          "Description": "Kill heavy scientists",
+          "Description": "Kill bosses",
           "DescriptionMultiLanguage": {
-            "ru": "Убейте Heavy Scientist",
-            "en": "Kill heavy scientists"
+            "ru": "Убейте боссов",
+            "en": "Kill bosses"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Rocket Launcher",
+          "PrizeType": "Item",
+          "ItemShortName": "rocket.launcher",
+          "ItemAmount": 1
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 15000
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 20000
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1014,
+      "QuestDisplayName": "Evil Hunter",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Охота на Evil",
+        "en": "Evil Hunter"
+      },
+      "QuestDescription": "Defeat the boss named Evil.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Победите босса по имени Evil.",
+        "en": "Defeat the boss named Evil."
+      },
+      "QuestMissions": "Kill Evil 1 time.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Убейте Evil 1 раз.",
+        "en": "Kill Evil 1 time."
+      },
+      "QuestType": "BossMonster",
+      "QuestCategory": "Events",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1014_bossmonster_evil",
+          "Type": "BossMonster",
+          "Target": "Evil",
+          "MatchAliases": [
+            "evil"
+          ],
+          "TargetCount": 1,
+          "Description": "Kill Evil",
+          "DescriptionMultiLanguage": {
+            "ru": "Убейте Evil",
+            "en": "Kill Evil"
           },
           "MatchMode": "contains"
         }
       ],
       "PrizeList": [
         {
-          "PrizeName": "M249",
+          "PrizeName": "Metal Refined",
           "PrizeType": "Item",
-          "ItemShortName": "lmg.m249",
-          "ItemAmount": 1
+          "ItemShortName": "metal.refined",
+          "ItemAmount": 250
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 10000
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 14000
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1008,
+      "QuestDisplayName": "Air Event Victor I",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Победитель Air Event I",
+        "en": "Air Event Victor I"
+      },
+      "QuestDescription": "Win the Air Event once.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Победите в Air Event 1 раз.",
+        "en": "Win the Air Event once."
+      },
+      "QuestMissions": "Complete Air Event 1 time.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Завершите Air Event 1 раз.",
+        "en": "Complete Air Event 1 time."
+      },
+      "QuestType": "AirEvent",
+      "QuestCategory": "Events",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1008_airevent",
+          "Type": "AirEvent",
+          "Target": "AirEvent",
+          "TargetCount": 1,
+          "Description": "Win Air Event",
+          "DescriptionMultiLanguage": {
+            "ru": "Победите в Air Event",
+            "en": "Win Air Event"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Scrap",
+          "PrizeType": "Item",
+          "ItemShortName": "scrap",
+          "ItemAmount": 300
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 7000
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 10000
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1009,
+      "QuestDisplayName": "Air Event Victor III",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Победитель Air Event III",
+        "en": "Air Event Victor III"
+      },
+      "QuestDescription": "Win the Air Event three times.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Победите в Air Event 3 раза.",
+        "en": "Win the Air Event three times."
+      },
+      "QuestMissions": "Complete Air Event 3 times.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Завершите Air Event 3 раза.",
+        "en": "Complete Air Event 3 times."
+      },
+      "QuestType": "AirEvent",
+      "QuestCategory": "Events",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1009_airevent",
+          "Type": "AirEvent",
+          "Target": "AirEvent",
+          "TargetCount": 3,
+          "Description": "Win Air Event",
+          "DescriptionMultiLanguage": {
+            "ru": "Победите в Air Event",
+            "en": "Win Air Event"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Supply Signal",
+          "PrizeType": "Item",
+          "ItemShortName": "supply.signal",
+          "ItemAmount": 2
         },
         {
           "PrizeName": "XP",
@@ -431,8 +732,568 @@
         {
           "PrizeName": "RP",
           "PrizeType": "RP",
-          "ItemAmount": 18000
+          "ItemAmount": 16000
         }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1010,
+      "QuestDisplayName": "Supermarket Victor I",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Победитель Supermarket Event I",
+        "en": "Supermarket Victor I"
+      },
+      "QuestDescription": "Win the Supermarket Event once.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Победите в Supermarket Event 1 раз.",
+        "en": "Win the Supermarket Event once."
+      },
+      "QuestMissions": "Complete Supermarket Event 1 time.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Завершите Supermarket Event 1 раз.",
+        "en": "Complete Supermarket Event 1 time."
+      },
+      "QuestType": "SupermarketEvent",
+      "QuestCategory": "Events",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1010_supermarketevent",
+          "Type": "SupermarketEvent",
+          "Target": "SupermarketEvent",
+          "TargetCount": 1,
+          "Description": "Win Supermarket Event",
+          "DescriptionMultiLanguage": {
+            "ru": "Победите в Supermarket Event",
+            "en": "Win Supermarket Event"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Scrap",
+          "PrizeType": "Item",
+          "ItemShortName": "scrap",
+          "ItemAmount": 300
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 7000
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 10000
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1011,
+      "QuestDisplayName": "Supermarket Victor III",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Победитель Supermarket Event III",
+        "en": "Supermarket Victor III"
+      },
+      "QuestDescription": "Win the Supermarket Event three times.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Победите в Supermarket Event 3 раза.",
+        "en": "Win the Supermarket Event three times."
+      },
+      "QuestMissions": "Complete Supermarket Event 3 times.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Завершите Supermarket Event 3 раза.",
+        "en": "Complete Supermarket Event 3 times."
+      },
+      "QuestType": "SupermarketEvent",
+      "QuestCategory": "Events",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1011_supermarketevent",
+          "Type": "SupermarketEvent",
+          "Target": "SupermarketEvent",
+          "TargetCount": 3,
+          "Description": "Win Supermarket Event",
+          "DescriptionMultiLanguage": {
+            "ru": "Победите в Supermarket Event",
+            "en": "Win Supermarket Event"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Supply Signal",
+          "PrizeType": "Item",
+          "ItemShortName": "supply.signal",
+          "ItemAmount": 2
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 12000
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 16000
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1012,
+      "QuestDisplayName": "Harbor Victor I",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Победитель Harbor Event I",
+        "en": "Harbor Victor I"
+      },
+      "QuestDescription": "Win the Harbor Event once.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Победите в Harbor Event 1 раз.",
+        "en": "Win the Harbor Event once."
+      },
+      "QuestMissions": "Complete Harbor Event 1 time.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Завершите Harbor Event 1 раз.",
+        "en": "Complete Harbor Event 1 time."
+      },
+      "QuestType": "HarborEvent",
+      "QuestCategory": "Events",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1012_harborevent",
+          "Type": "HarborEvent",
+          "Target": "HarborEvent",
+          "TargetCount": 1,
+          "Description": "Win Harbor Event",
+          "DescriptionMultiLanguage": {
+            "ru": "Победите в Harbor Event",
+            "en": "Win Harbor Event"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Scrap",
+          "PrizeType": "Item",
+          "ItemShortName": "scrap",
+          "ItemAmount": 300
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 7000
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 10000
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1013,
+      "QuestDisplayName": "Harbor Victor III",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Победитель Harbor Event III",
+        "en": "Harbor Victor III"
+      },
+      "QuestDescription": "Win the Harbor Event three times.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Победите в Harbor Event 3 раза.",
+        "en": "Win the Harbor Event three times."
+      },
+      "QuestMissions": "Complete Harbor Event 3 times.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Завершите Harbor Event 3 раза.",
+        "en": "Complete Harbor Event 3 times."
+      },
+      "QuestType": "HarborEvent",
+      "QuestCategory": "Events",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1013_harborevent",
+          "Type": "HarborEvent",
+          "Target": "HarborEvent",
+          "TargetCount": 3,
+          "Description": "Win Harbor Event",
+          "DescriptionMultiLanguage": {
+            "ru": "Победите в Harbor Event",
+            "en": "Win Harbor Event"
+          }
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Supply Signal",
+          "PrizeType": "Item",
+          "ItemShortName": "supply.signal",
+          "ItemAmount": 2
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 12000
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 16000
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1201,
+      "QuestDisplayName": "Bear Hunt",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Охота на медведей",
+        "en": "Bear Hunt"
+      },
+      "QuestDescription": "Eliminate bears in the wild.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Убейте медведей в дикой природе.",
+        "en": "Eliminate bears in the wild."
+      },
+      "QuestMissions": "Kill 10 bears.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Убейте 10 медведей.",
+        "en": "Kill 10 bears."
+      },
+      "QuestType": "EntityKill",
+      "QuestCategory": "Охотник",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1201_bear",
+          "Type": "EntityKill",
+          "Target": "bear",
+          "MatchAliases": ["bear", "grizzlybear", "blackbear", "polar-bear", "polarbear"],
+          "TargetCount": 10,
+          "Description": "Kill bears",
+          "DescriptionMultiLanguage": {
+            "ru": "Убейте медведей",
+            "en": "Kill bears"
+          },
+          "MatchMode": "contains"
+        }
+      ],
+      "PrizeList": [
+        { "PrizeName": "Scrap", "PrizeType": "Item", "ItemShortName": "scrap", "ItemAmount": 100 },
+        { "PrizeName": "XP", "PrizeType": "XP", "ItemAmount": 5000 },
+        { "PrizeName": "RP", "PrizeType": "RP", "ItemAmount": 8000 }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1202,
+      "QuestDisplayName": "Wolf Hunt",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Охота на волков",
+        "en": "Wolf Hunt"
+      },
+      "QuestDescription": "Eliminate wolves in the forest.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Убейте волков в лесу.",
+        "en": "Eliminate wolves in the forest."
+      },
+      "QuestMissions": "Kill 10 wolves.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Убейте 10 волков.",
+        "en": "Kill 10 wolves."
+      },
+      "QuestType": "EntityKill",
+      "QuestCategory": "Охотник",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1202_wolf",
+          "Type": "EntityKill",
+          "Target": "wolf",
+          "MatchAliases": ["wolf"],
+          "TargetCount": 10,
+          "Description": "Kill wolves",
+          "DescriptionMultiLanguage": {
+            "ru": "Убейте волков",
+            "en": "Kill wolves"
+          },
+          "MatchMode": "contains"
+        }
+      ],
+      "PrizeList": [
+        { "PrizeName": "Scrap", "PrizeType": "Item", "ItemShortName": "scrap", "ItemAmount": 80 },
+        { "PrizeName": "XP", "PrizeType": "XP", "ItemAmount": 4000 },
+        { "PrizeName": "RP", "PrizeType": "RP", "ItemAmount": 6000 }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1203,
+      "QuestDisplayName": "Boar Hunt",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Охота на кабанов",
+        "en": "Boar Hunt"
+      },
+      "QuestDescription": "Eliminate wild boars.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Убейте диких кабанов.",
+        "en": "Eliminate wild boars."
+      },
+      "QuestMissions": "Kill 10 boars.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Убейте 10 кабанов.",
+        "en": "Kill 10 boars."
+      },
+      "QuestType": "EntityKill",
+      "QuestCategory": "Охотник",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1203_boar",
+          "Type": "EntityKill",
+          "Target": "boar",
+          "MatchAliases": ["boar"],
+          "TargetCount": 10,
+          "Description": "Kill boars",
+          "DescriptionMultiLanguage": {
+            "ru": "Убейте кабанов",
+            "en": "Kill boars"
+          },
+          "MatchMode": "contains"
+        }
+      ],
+      "PrizeList": [
+        { "PrizeName": "Scrap", "PrizeType": "Item", "ItemShortName": "scrap", "ItemAmount": 60 },
+        { "PrizeName": "XP", "PrizeType": "XP", "ItemAmount": 3000 },
+        { "PrizeName": "RP", "PrizeType": "RP", "ItemAmount": 5000 }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1204,
+      "QuestDisplayName": "Deer Hunt",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Охота на оленей",
+        "en": "Deer Hunt"
+      },
+      "QuestDescription": "Eliminate stags and deer.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Убейте оленей.",
+        "en": "Eliminate stags and deer."
+      },
+      "QuestMissions": "Kill 10 deer.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Убейте 10 оленей.",
+        "en": "Kill 10 deer."
+      },
+      "QuestType": "EntityKill",
+      "QuestCategory": "Охотник",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1204_deer",
+          "Type": "EntityKill",
+          "Target": "stag",
+          "MatchAliases": ["stag", "deer"],
+          "TargetCount": 10,
+          "Description": "Kill deer",
+          "DescriptionMultiLanguage": {
+            "ru": "Убейте оленей",
+            "en": "Kill deer"
+          },
+          "MatchMode": "contains"
+        }
+      ],
+      "PrizeList": [
+        { "PrizeName": "Scrap", "PrizeType": "Item", "ItemShortName": "scrap", "ItemAmount": 50 },
+        { "PrizeName": "XP", "PrizeType": "XP", "ItemAmount": 2500 },
+        { "PrizeName": "RP", "PrizeType": "RP", "ItemAmount": 4000 }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1205,
+      "QuestDisplayName": "Panther Hunt",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Охота на пантер",
+        "en": "Panther Hunt"
+      },
+      "QuestDescription": "Eliminate panthers in the jungle.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Убейте пантер в джунглях.",
+        "en": "Eliminate panthers in the jungle."
+      },
+      "QuestMissions": "Kill 10 panthers.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Убейте 10 пантер.",
+        "en": "Kill 10 panthers."
+      },
+      "QuestType": "EntityKill",
+      "QuestCategory": "Охотник",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1205_panther",
+          "Type": "EntityKill",
+          "Target": "panther",
+          "MatchAliases": ["panther"],
+          "TargetCount": 10,
+          "Description": "Kill panthers",
+          "DescriptionMultiLanguage": {
+            "ru": "Убейте пантер",
+            "en": "Kill panthers"
+          },
+          "MatchMode": "contains"
+        }
+      ],
+      "PrizeList": [
+        { "PrizeName": "Scrap", "PrizeType": "Item", "ItemShortName": "scrap", "ItemAmount": 120 },
+        { "PrizeName": "XP", "PrizeType": "XP", "ItemAmount": 6000 },
+        { "PrizeName": "RP", "PrizeType": "RP", "ItemAmount": 10000 }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1206,
+      "QuestDisplayName": "Tiger Hunt",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Охота на тигров",
+        "en": "Tiger Hunt"
+      },
+      "QuestDescription": "Eliminate tigers in the jungle.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Убейте тигров в джунглях.",
+        "en": "Eliminate tigers in the jungle."
+      },
+      "QuestMissions": "Kill 10 tigers.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Убейте 10 тигров.",
+        "en": "Kill 10 tigers."
+      },
+      "QuestType": "EntityKill",
+      "QuestCategory": "Охотник",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1206_tiger",
+          "Type": "EntityKill",
+          "Target": "tiger",
+          "MatchAliases": ["tiger"],
+          "TargetCount": 10,
+          "Description": "Kill tigers",
+          "DescriptionMultiLanguage": {
+            "ru": "Убейте тигров",
+            "en": "Kill tigers"
+          },
+          "MatchMode": "contains"
+        }
+      ],
+      "PrizeList": [
+        { "PrizeName": "Scrap", "PrizeType": "Item", "ItemShortName": "scrap", "ItemAmount": 130 },
+        { "PrizeName": "XP", "PrizeType": "XP", "ItemAmount": 7000 },
+        { "PrizeName": "RP", "PrizeType": "RP", "ItemAmount": 11000 }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1207,
+      "QuestDisplayName": "Shark Hunt",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Охота на акул",
+        "en": "Shark Hunt"
+      },
+      "QuestDescription": "Eliminate sharks in the ocean.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Убейте акул в океане.",
+        "en": "Eliminate sharks in the ocean."
+      },
+      "QuestMissions": "Kill 10 sharks.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Убейте 10 акул.",
+        "en": "Kill 10 sharks."
+      },
+      "QuestType": "EntityKill",
+      "QuestCategory": "Охотник",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1207_shark",
+          "Type": "EntityKill",
+          "Target": "shark",
+          "MatchAliases": ["shark", "orca"],
+          "TargetCount": 10,
+          "Description": "Kill sharks",
+          "DescriptionMultiLanguage": {
+            "ru": "Убейте акул",
+            "en": "Kill sharks"
+          },
+          "MatchMode": "contains"
+        }
+      ],
+      "PrizeList": [
+        { "PrizeName": "Scrap", "PrizeType": "Item", "ItemShortName": "scrap", "ItemAmount": 90 },
+        { "PrizeName": "XP", "PrizeType": "XP", "ItemAmount": 4500 },
+        { "PrizeName": "RP", "PrizeType": "RP", "ItemAmount": 7000 }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1208,
+      "QuestDisplayName": "Crocodile Hunt",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Охота на крокодилов",
+        "en": "Crocodile Hunt"
+      },
+      "QuestDescription": "Eliminate crocodiles in the swamp.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Убейте крокодилов в болоте.",
+        "en": "Eliminate crocodiles in the swamp."
+      },
+      "QuestMissions": "Kill 10 crocodiles.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Убейте 10 крокодилов.",
+        "en": "Kill 10 crocodiles."
+      },
+      "QuestType": "EntityKill",
+      "QuestCategory": "Охотник",
+      "QuestTabType": "Quests",
+      "Objectives": [
+        {
+          "ObjectiveId": "1208_crocodile",
+          "Type": "EntityKill",
+          "Target": "crocodile",
+          "MatchAliases": ["crocodile"],
+          "TargetCount": 10,
+          "Description": "Kill crocodiles",
+          "DescriptionMultiLanguage": {
+            "ru": "Убейте крокодилов",
+            "en": "Kill crocodiles"
+          },
+          "MatchMode": "contains"
+        }
+      ],
+      "PrizeList": [
+        { "PrizeName": "Scrap", "PrizeType": "Item", "ItemShortName": "scrap", "ItemAmount": 100 },
+        { "PrizeName": "XP", "PrizeType": "XP", "ItemAmount": 5000 },
+        { "PrizeName": "RP", "PrizeType": "RP", "ItemAmount": 8000 }
       ],
       "Cooldown": 60,
       "IsRepeatable": true
@@ -545,168 +1406,7 @@
       "Cooldown": 60,
       "IsRepeatable": true
     },
-    {
-      "QuestID": 1103,
-      "QuestDisplayName": "Wood Collector III",
-      "QuestDisplayNameMultiLanguage": {
-        "ru": "Сбор дерева III",
-        "en": "Wood Collector III"
-      },
-      "QuestDescription": "Stockpile enough wood for a serious build.",
-      "QuestDescriptionMultiLanguage": {
-        "ru": "Подготовьте серьезный запас дерева для стройки.",
-        "en": "Stockpile enough wood for a serious build."
-      },
-      "QuestMissions": "Gather 20000 wood.",
-      "QuestMissionsMultiLanguage": {
-        "ru": "Соберите 20000 дерева.",
-        "en": "Gather 20000 wood."
-      },
-      "QuestType": "Gather",
-      "QuestCategory": "Wood",
-      "QuestTabType": "Quests",
-      "Objectives": [
-        {
-          "ObjectiveId": "1103_gather",
-          "Type": "Gather",
-          "Target": "wood",
-          "TargetCount": 20000,
-          "Description": "Gather wood",
-          "DescriptionMultiLanguage": {
-            "ru": "Соберите дерево",
-            "en": "Gather wood"
-          }
-        }
-      ],
-      "PrizeList": [
-        {
-          "PrizeName": "Scrap",
-          "PrizeType": "Item",
-          "ItemShortName": "scrap",
-          "ItemAmount": 300
-        },
-        {
-          "PrizeName": "XP",
-          "PrizeType": "XP",
-          "ItemAmount": 11288
-        },
-        {
-          "PrizeName": "RP",
-          "PrizeType": "RP",
-          "ItemAmount": 17401
-        }
-      ],
-      "Cooldown": 60,
-      "IsRepeatable": true
-    },
-    {
-      "QuestID": 1104,
-      "QuestDisplayName": "Wood Collector IV",
-      "QuestDisplayNameMultiLanguage": {
-        "ru": "Сбор дерева IV",
-        "en": "Wood Collector IV"
-      },
-      "QuestDescription": "Keep the furnaces and walls fed with wood.",
-      "QuestDescriptionMultiLanguage": {
-        "ru": "Поддерживайте стройку и печи большим запасом дерева.",
-        "en": "Keep the furnaces and walls fed with wood."
-      },
-      "QuestMissions": "Gather 50000 wood.",
-      "QuestMissionsMultiLanguage": {
-        "ru": "Соберите 50000 дерева.",
-        "en": "Gather 50000 wood."
-      },
-      "QuestType": "Gather",
-      "QuestCategory": "Wood",
-      "QuestTabType": "Quests",
-      "Objectives": [
-        {
-          "ObjectiveId": "1104_gather",
-          "Type": "Gather",
-          "Target": "wood",
-          "TargetCount": 50000,
-          "Description": "Gather wood",
-          "DescriptionMultiLanguage": {
-            "ru": "Соберите дерево",
-            "en": "Gather wood"
-          }
-        }
-      ],
-      "PrizeList": [
-        {
-          "PrizeName": "Scrap",
-          "PrizeType": "Item",
-          "ItemShortName": "scrap",
-          "ItemAmount": 700
-        },
-        {
-          "PrizeName": "XP",
-          "PrizeType": "XP",
-          "ItemAmount": 9104
-        },
-        {
-          "PrizeName": "RP",
-          "PrizeType": "RP",
-          "ItemAmount": 15217
-        }
-      ],
-      "Cooldown": 60,
-      "IsRepeatable": true
-    },
-    {
-      "QuestID": 1105,
-      "QuestDisplayName": "Wood Collector V",
-      "QuestDisplayNameMultiLanguage": {
-        "ru": "Сбор дерева V",
-        "en": "Wood Collector V"
-      },
-      "QuestDescription": "Finish a massive lumber run.",
-      "QuestDescriptionMultiLanguage": {
-        "ru": "Завершите огромный лесной забег.",
-        "en": "Finish a massive lumber run."
-      },
-      "QuestMissions": "Gather 100000 wood.",
-      "QuestMissionsMultiLanguage": {
-        "ru": "Соберите 100000 дерева.",
-        "en": "Gather 100000 wood."
-      },
-      "QuestType": "Gather",
-      "QuestCategory": "Wood",
-      "QuestTabType": "Quests",
-      "Objectives": [
-        {
-          "ObjectiveId": "1105_gather",
-          "Type": "Gather",
-          "Target": "wood",
-          "TargetCount": 100000,
-          "Description": "Gather wood",
-          "DescriptionMultiLanguage": {
-            "ru": "Соберите дерево",
-            "en": "Gather wood"
-          }
-        }
-      ],
-      "PrizeList": [
-        {
-          "PrizeName": "Scrap",
-          "PrizeType": "Item",
-          "ItemShortName": "scrap",
-          "ItemAmount": 1500
-        },
-        {
-          "PrizeName": "XP",
-          "PrizeType": "XP",
-          "ItemAmount": 6920
-        },
-        {
-          "PrizeName": "RP",
-          "PrizeType": "RP",
-          "ItemAmount": 13033
-        }
-      ],
-      "Cooldown": 60,
-      "IsRepeatable": true
-    },
+
     {
       "QuestID": 1111,
       "QuestDisplayName": "Stone Collector I",
@@ -810,168 +1510,6 @@
           "PrizeName": "RP",
           "PrizeType": "RP",
           "ItemAmount": 16746
-        }
-      ],
-      "Cooldown": 60,
-      "IsRepeatable": true
-    },
-    {
-      "QuestID": 1113,
-      "QuestDisplayName": "Stone Collector III",
-      "QuestDisplayNameMultiLanguage": {
-        "ru": "Сбор камня III",
-        "en": "Stone Collector III"
-      },
-      "QuestDescription": "Keep the stone stockpile growing.",
-      "QuestDescriptionMultiLanguage": {
-        "ru": "Продолжайте наращивать запасы камня.",
-        "en": "Keep the stone stockpile growing."
-      },
-      "QuestMissions": "Gather 20000 stones.",
-      "QuestMissionsMultiLanguage": {
-        "ru": "Соберите 20000 камня.",
-        "en": "Gather 20000 stones."
-      },
-      "QuestType": "Gather",
-      "QuestCategory": "Stone",
-      "QuestTabType": "Quests",
-      "Objectives": [
-        {
-          "ObjectiveId": "1113_gather",
-          "Type": "Gather",
-          "Target": "stones",
-          "TargetCount": 20000,
-          "Description": "Gather stone",
-          "DescriptionMultiLanguage": {
-            "ru": "Соберите камень",
-            "en": "Gather stone"
-          }
-        }
-      ],
-      "PrizeList": [
-        {
-          "PrizeName": "Metal Fragments",
-          "PrizeType": "Item",
-          "ItemShortName": "metal.fragments",
-          "ItemAmount": 1000
-        },
-        {
-          "PrizeName": "XP",
-          "PrizeType": "XP",
-          "ItemAmount": 8449
-        },
-        {
-          "PrizeName": "RP",
-          "PrizeType": "RP",
-          "ItemAmount": 14562
-        }
-      ],
-      "Cooldown": 60,
-      "IsRepeatable": true
-    },
-    {
-      "QuestID": 1114,
-      "QuestDisplayName": "Stone Collector IV",
-      "QuestDisplayNameMultiLanguage": {
-        "ru": "Сбор камня IV",
-        "en": "Stone Collector IV"
-      },
-      "QuestDescription": "Build a serious reserve of stone.",
-      "QuestDescriptionMultiLanguage": {
-        "ru": "Соберите серьезный запас камня.",
-        "en": "Build a serious reserve of stone."
-      },
-      "QuestMissions": "Gather 50000 stones.",
-      "QuestMissionsMultiLanguage": {
-        "ru": "Соберите 50000 камня.",
-        "en": "Gather 50000 stones."
-      },
-      "QuestType": "Gather",
-      "QuestCategory": "Stone",
-      "QuestTabType": "Quests",
-      "Objectives": [
-        {
-          "ObjectiveId": "1114_gather",
-          "Type": "Gather",
-          "Target": "stones",
-          "TargetCount": 50000,
-          "Description": "Gather stone",
-          "DescriptionMultiLanguage": {
-            "ru": "Соберите камень",
-            "en": "Gather stone"
-          }
-        }
-      ],
-      "PrizeList": [
-        {
-          "PrizeName": "Metal Fragments",
-          "PrizeType": "Item",
-          "ItemShortName": "metal.fragments",
-          "ItemAmount": 2500
-        },
-        {
-          "PrizeName": "XP",
-          "PrizeType": "XP",
-          "ItemAmount": 6265
-        },
-        {
-          "PrizeName": "RP",
-          "PrizeType": "RP",
-          "ItemAmount": 12378
-        }
-      ],
-      "Cooldown": 60,
-      "IsRepeatable": true
-    },
-    {
-      "QuestID": 1115,
-      "QuestDisplayName": "Stone Collector V",
-      "QuestDisplayNameMultiLanguage": {
-        "ru": "Сбор камня V",
-        "en": "Stone Collector V"
-      },
-      "QuestDescription": "Finish a massive stone haul.",
-      "QuestDescriptionMultiLanguage": {
-        "ru": "Завершите огромную добычу камня.",
-        "en": "Finish a massive stone haul."
-      },
-      "QuestMissions": "Gather 100000 stones.",
-      "QuestMissionsMultiLanguage": {
-        "ru": "Соберите 100000 камня.",
-        "en": "Gather 100000 stones."
-      },
-      "QuestType": "Gather",
-      "QuestCategory": "Stone",
-      "QuestTabType": "Quests",
-      "Objectives": [
-        {
-          "ObjectiveId": "1115_gather",
-          "Type": "Gather",
-          "Target": "stones",
-          "TargetCount": 100000,
-          "Description": "Gather stone",
-          "DescriptionMultiLanguage": {
-            "ru": "Соберите камень",
-            "en": "Gather stone"
-          }
-        }
-      ],
-      "PrizeList": [
-        {
-          "PrizeName": "Metal Fragments",
-          "PrizeType": "Item",
-          "ItemShortName": "metal.fragments",
-          "ItemAmount": 5000
-        },
-        {
-          "PrizeName": "XP",
-          "PrizeType": "XP",
-          "ItemAmount": 4081
-        },
-        {
-          "PrizeName": "RP",
-          "PrizeType": "RP",
-          "ItemAmount": 10194
         }
       ],
       "Cooldown": 60,
@@ -1086,168 +1624,6 @@
       "IsRepeatable": true
     },
     {
-      "QuestID": 1123,
-      "QuestDisplayName": "Metal Collector III",
-      "QuestDisplayNameMultiLanguage": {
-        "ru": "Сбор фрагментов III",
-        "en": "Metal Collector III"
-      },
-      "QuestDescription": "Prepare a serious smelting reserve.",
-      "QuestDescriptionMultiLanguage": {
-        "ru": "Подготовьте серьезный запас металла.",
-        "en": "Prepare a serious smelting reserve."
-      },
-      "QuestMissions": "Gather 20000 metal fragments.",
-      "QuestMissionsMultiLanguage": {
-        "ru": "Соберите 20000 фрагментов металла.",
-        "en": "Gather 20000 metal fragments."
-      },
-      "QuestType": "Gather",
-      "QuestCategory": "Metal",
-      "QuestTabType": "Quests",
-      "Objectives": [
-        {
-          "ObjectiveId": "1123_gather",
-          "Type": "Gather",
-          "Target": "metal.fragments",
-          "TargetCount": 20000,
-          "Description": "Gather metal fragments",
-          "DescriptionMultiLanguage": {
-            "ru": "Соберите фрагменты металла",
-            "en": "Gather metal fragments"
-          }
-        }
-      ],
-      "PrizeList": [
-        {
-          "PrizeName": "Scrap",
-          "PrizeType": "Item",
-          "ItemShortName": "scrap",
-          "ItemAmount": 400
-        },
-        {
-          "PrizeName": "XP",
-          "PrizeType": "XP",
-          "ItemAmount": 5610
-        },
-        {
-          "PrizeName": "RP",
-          "PrizeType": "RP",
-          "ItemAmount": 11723
-        }
-      ],
-      "Cooldown": 60,
-      "IsRepeatable": true
-    },
-    {
-      "QuestID": 1124,
-      "QuestDisplayName": "Metal Collector IV",
-      "QuestDisplayNameMultiLanguage": {
-        "ru": "Сбор фрагментов IV",
-        "en": "Metal Collector IV"
-      },
-      "QuestDescription": "Push your metal reserve to industrial scale.",
-      "QuestDescriptionMultiLanguage": {
-        "ru": "Разгоните запас металла до промышленного уровня.",
-        "en": "Push your metal reserve to industrial scale."
-      },
-      "QuestMissions": "Gather 50000 metal fragments.",
-      "QuestMissionsMultiLanguage": {
-        "ru": "Соберите 50000 фрагментов металла.",
-        "en": "Gather 50000 metal fragments."
-      },
-      "QuestType": "Gather",
-      "QuestCategory": "Metal",
-      "QuestTabType": "Quests",
-      "Objectives": [
-        {
-          "ObjectiveId": "1124_gather",
-          "Type": "Gather",
-          "Target": "metal.fragments",
-          "TargetCount": 50000,
-          "Description": "Gather metal fragments",
-          "DescriptionMultiLanguage": {
-            "ru": "Соберите фрагменты металла",
-            "en": "Gather metal fragments"
-          }
-        }
-      ],
-      "PrizeList": [
-        {
-          "PrizeName": "Scrap",
-          "PrizeType": "Item",
-          "ItemShortName": "scrap",
-          "ItemAmount": 800
-        },
-        {
-          "PrizeName": "XP",
-          "PrizeType": "XP",
-          "ItemAmount": 3426
-        },
-        {
-          "PrizeName": "RP",
-          "PrizeType": "RP",
-          "ItemAmount": 9539
-        }
-      ],
-      "Cooldown": 60,
-      "IsRepeatable": true
-    },
-    {
-      "QuestID": 1125,
-      "QuestDisplayName": "Metal Collector V",
-      "QuestDisplayNameMultiLanguage": {
-        "ru": "Сбор фрагментов V",
-        "en": "Metal Collector V"
-      },
-      "QuestDescription": "Finish the ultimate metal stockpile.",
-      "QuestDescriptionMultiLanguage": {
-        "ru": "Завершите максимальный запас фрагментов металла.",
-        "en": "Finish the ultimate metal stockpile."
-      },
-      "QuestMissions": "Gather 100000 metal fragments.",
-      "QuestMissionsMultiLanguage": {
-        "ru": "Соберите 100000 фрагментов металла.",
-        "en": "Gather 100000 metal fragments."
-      },
-      "QuestType": "Gather",
-      "QuestCategory": "Metal",
-      "QuestTabType": "Quests",
-      "Objectives": [
-        {
-          "ObjectiveId": "1125_gather",
-          "Type": "Gather",
-          "Target": "metal.fragments",
-          "TargetCount": 100000,
-          "Description": "Gather metal fragments",
-          "DescriptionMultiLanguage": {
-            "ru": "Соберите фрагменты металла",
-            "en": "Gather metal fragments"
-          }
-        }
-      ],
-      "PrizeList": [
-        {
-          "PrizeName": "Scrap",
-          "PrizeType": "Item",
-          "ItemShortName": "scrap",
-          "ItemAmount": 1600
-        },
-        {
-          "PrizeName": "XP",
-          "PrizeType": "XP",
-          "ItemAmount": 1242
-        },
-        {
-          "PrizeName": "RP",
-          "PrizeType": "RP",
-          "ItemAmount": 7355
-        }
-      ],
-      "Cooldown": 60,
-      "IsRepeatable": true
-    },
-    {
       "QuestID": 1131,
       "QuestDisplayName": "Scrap Collector I",
       "QuestDisplayNameMultiLanguage": {
@@ -1350,168 +1726,6 @@
           "PrizeName": "RP",
           "PrizeType": "RP",
           "ItemAmount": 11068
-        }
-      ],
-      "Cooldown": 60,
-      "IsRepeatable": true
-    },
-    {
-      "QuestID": 1133,
-      "QuestDisplayName": "Scrap Collector III",
-      "QuestDisplayNameMultiLanguage": {
-        "ru": "Сбор скрапа III",
-        "en": "Scrap Collector III"
-      },
-      "QuestDescription": "Bring in a serious recycler run.",
-      "QuestDescriptionMultiLanguage": {
-        "ru": "Сделайте серьезный заход на переработку.",
-        "en": "Bring in a serious recycler run."
-      },
-      "QuestMissions": "Gather 20000 scrap.",
-      "QuestMissionsMultiLanguage": {
-        "ru": "Соберите 20000 скрапа.",
-        "en": "Gather 20000 scrap."
-      },
-      "QuestType": "Gather",
-      "QuestCategory": "Scrap",
-      "QuestTabType": "Quests",
-      "Objectives": [
-        {
-          "ObjectiveId": "1133_gather",
-          "Type": "Gather",
-          "Target": "scrap",
-          "TargetCount": 20000,
-          "Description": "Gather scrap",
-          "DescriptionMultiLanguage": {
-            "ru": "Соберите скрап",
-            "en": "Gather scrap"
-          }
-        }
-      ],
-      "PrizeList": [
-        {
-          "PrizeName": "Low Grade Fuel",
-          "PrizeType": "Item",
-          "ItemShortName": "lowgradefuel",
-          "ItemAmount": 200
-        },
-        {
-          "PrizeName": "XP",
-          "PrizeType": "XP",
-          "ItemAmount": 2771
-        },
-        {
-          "PrizeName": "RP",
-          "PrizeType": "RP",
-          "ItemAmount": 8884
-        }
-      ],
-      "Cooldown": 60,
-      "IsRepeatable": true
-    },
-    {
-      "QuestID": 1134,
-      "QuestDisplayName": "Scrap Collector IV",
-      "QuestDisplayNameMultiLanguage": {
-        "ru": "Сбор скрапа IV",
-        "en": "Scrap Collector IV"
-      },
-      "QuestDescription": "Keep the recycler busy and the scrap flowing.",
-      "QuestDescriptionMultiLanguage": {
-        "ru": "Поддерживайте стабильный приток скрапа.",
-        "en": "Keep the recycler busy and the scrap flowing."
-      },
-      "QuestMissions": "Gather 50000 scrap.",
-      "QuestMissionsMultiLanguage": {
-        "ru": "Соберите 50000 скрапа.",
-        "en": "Gather 50000 scrap."
-      },
-      "QuestType": "Gather",
-      "QuestCategory": "Scrap",
-      "QuestTabType": "Quests",
-      "Objectives": [
-        {
-          "ObjectiveId": "1134_gather",
-          "Type": "Gather",
-          "Target": "scrap",
-          "TargetCount": 50000,
-          "Description": "Gather scrap",
-          "DescriptionMultiLanguage": {
-            "ru": "Соберите скрап",
-            "en": "Gather scrap"
-          }
-        }
-      ],
-      "PrizeList": [
-        {
-          "PrizeName": "Low Grade Fuel",
-          "PrizeType": "Item",
-          "ItemShortName": "lowgradefuel",
-          "ItemAmount": 400
-        },
-        {
-          "PrizeName": "XP",
-          "PrizeType": "XP",
-          "ItemAmount": 19588
-        },
-        {
-          "PrizeName": "RP",
-          "PrizeType": "RP",
-          "ItemAmount": 6700
-        }
-      ],
-      "Cooldown": 60,
-      "IsRepeatable": true
-    },
-    {
-      "QuestID": 1135,
-      "QuestDisplayName": "Scrap Collector V",
-      "QuestDisplayNameMultiLanguage": {
-        "ru": "Сбор скрапа V",
-        "en": "Scrap Collector V"
-      },
-      "QuestDescription": "Complete a giant scrap haul.",
-      "QuestDescriptionMultiLanguage": {
-        "ru": "Завершите гигантский сбор скрапа.",
-        "en": "Complete a giant scrap haul."
-      },
-      "QuestMissions": "Gather 100000 scrap.",
-      "QuestMissionsMultiLanguage": {
-        "ru": "Соберите 100000 скрапа.",
-        "en": "Gather 100000 scrap."
-      },
-      "QuestType": "Gather",
-      "QuestCategory": "Scrap",
-      "QuestTabType": "Quests",
-      "Objectives": [
-        {
-          "ObjectiveId": "1135_gather",
-          "Type": "Gather",
-          "Target": "scrap",
-          "TargetCount": 100000,
-          "Description": "Gather scrap",
-          "DescriptionMultiLanguage": {
-            "ru": "Соберите скрап",
-            "en": "Gather scrap"
-          }
-        }
-      ],
-      "PrizeList": [
-        {
-          "PrizeName": "Low Grade Fuel",
-          "PrizeType": "Item",
-          "ItemShortName": "lowgradefuel",
-          "ItemAmount": 800
-        },
-        {
-          "PrizeName": "XP",
-          "PrizeType": "XP",
-          "ItemAmount": 17404
-        },
-        {
-          "PrizeName": "RP",
-          "PrizeType": "RP",
-          "ItemAmount": 4516
         }
       ],
       "Cooldown": 60,
@@ -1704,10 +1918,10 @@
         "ru": "Заложите первые фундаменты своей базы.",
         "en": "Lay down the first foundations of your base."
       },
-      "QuestMissions": "Place 10 foundations.",
+      "QuestMissions": "Place 3 foundations.",
       "QuestMissionsMultiLanguage": {
-        "ru": "Поставьте 10 фундаментов.",
-        "en": "Place 10 foundations."
+        "ru": "Поставьте 3 фундаментов.",
+        "en": "Place 3 foundations."
       },
       "QuestType": "Deploy",
       "QuestCategory": "Base Builder",
@@ -1720,7 +1934,7 @@
           "ObjectiveId": "3201_deploy",
           "Type": "Deploy",
           "Target": "foundation",
-          "TargetCount": 10,
+          "TargetCount": 3,
           "Description": "Place foundations",
           "DescriptionMultiLanguage": {
             "ru": "Поставьте фундаменты",
@@ -1814,6 +2028,69 @@
       "IsRepeatable": true
     },
     {
+      "QuestID": 3206,
+      "QuestDisplayName": "Base Builder: Wooden Door",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Строитель базы: деревянная дверь",
+        "en": "Base Builder: Wooden Door"
+      },
+      "QuestDescription": "Close off the entrance with a wooden door.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Закройте вход деревянной дверью.",
+        "en": "Close off the entrance with a wooden door."
+      },
+      "QuestMissions": "Place a wooden door.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Поставьте деревянную дверь.",
+        "en": "Place a wooden door."
+      },
+      "QuestType": "Deploy",
+      "QuestCategory": "Base Builder",
+      "QuestTabType": "Quests",
+      "Icon": "door.hinged.wood",
+      "QuestlineId": 3002,
+      "QuestlineOrder": 6,
+      "RequiredQuestIds": [
+        3202
+      ],
+      "Objectives": [
+        {
+          "ObjectiveId": "3206_deploy",
+          "Type": "Deploy",
+          "Target": "door.hinged.wood",
+          "TargetCount": 1,
+          "Description": "Place a wooden door",
+          "DescriptionMultiLanguage": {
+            "ru": "Поставьте деревянную дверь",
+            "en": "Place a wooden door"
+          },
+          "MatchMode": "contains",
+          "Icon": "door.hinged.wood"
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Wood",
+          "PrizeType": "Item",
+          "ItemShortName": "wood",
+          "ItemAmount": 1000
+        },
+        {
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 16578
+        },
+        {
+          "PrizeName": "RP",
+          "PrizeType": "RP",
+          "ItemAmount": 3690
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+
+    {
       "QuestID": 3203,
       "QuestDisplayName": "Base Builder: Workbench 1",
       "QuestDisplayNameMultiLanguage": {
@@ -1876,106 +2153,39 @@
       "IsRepeatable": true
     },
     {
-      "QuestID": 3204,
-      "QuestDisplayName": "Base Builder: Workbench 2",
+      "QuestID": 1015,
+      "QuestDisplayName": "Raidable Base: Easy",
       "QuestDisplayNameMultiLanguage": {
-        "ru": "Строитель базы: верстак 2",
-        "en": "Base Builder: Workbench 2"
+        "ru": "Рейд база: Easy",
+        "en": "Raidable Base: Easy"
       },
-      "QuestDescription": "Upgrade your production line with a better bench.",
+      "QuestDescription": "Complete an Easy raidable base.",
       "QuestDescriptionMultiLanguage": {
-        "ru": "Улучшите производство новым верстаком.",
-        "en": "Upgrade your production line with a better bench."
+        "ru": "Завершите рейд базу сложности Easy.",
+        "en": "Complete an Easy raidable base."
       },
-      "QuestMissions": "Place a level 2 workbench.",
+      "QuestMissions": "Complete an Easy raidable base.",
       "QuestMissionsMultiLanguage": {
-        "ru": "Поставьте верстак 2 уровня.",
-        "en": "Place a level 2 workbench."
+        "ru": "Завершите рейд базу Easy.",
+        "en": "Complete an Easy raidable base."
       },
-      "QuestType": "Deploy",
-      "QuestCategory": "Base Builder",
+      "QuestType": "RaidableBases",
+      "QuestCategory": "Events",
       "QuestTabType": "Quests",
-      "Icon": "workbench2",
-      "QuestlineId": 3002,
-      "QuestlineOrder": 4,
-      "RequiredQuestIds": [
-        3203
-      ],
+      "Icon": "explosive.timed",
       "Objectives": [
         {
-          "ObjectiveId": "3204_deploy",
-          "Type": "Deploy",
-          "Target": "workbench2",
+          "ObjectiveId": "1015_raidable",
+          "Type": "RaidableBases",
+          "Target": "Easy",
           "TargetCount": 1,
-          "Description": "Place a level 2 workbench",
+          "Description": "Complete an Easy raidable base",
           "DescriptionMultiLanguage": {
-            "ru": "Поставьте верстак 2 уровня",
-            "en": "Place a level 2 workbench"
+            "ru": "Завершите рейд базу Easy",
+            "en": "Complete an Easy raidable base"
           },
-          "MatchMode": "contains",
-          "Icon": "workbench2"
-        }
-      ],
-      "PrizeList": [
-        {
-          "PrizeName": "Metal Fragments",
-          "PrizeType": "Item",
-          "ItemShortName": "metal.fragments",
-          "ItemAmount": 1000
-        },
-        {
-          "PrizeName": "XP",
-          "PrizeType": "XP",
-          "ItemAmount": 1945
-        },
-        {
-          "PrizeName": "RP",
-          "PrizeType": "RP",
-          "ItemAmount": 8058
-        }
-      ],
-      "Cooldown": 60,
-      "IsRepeatable": true
-    },
-    {
-      "QuestID": 3205,
-      "QuestDisplayName": "Base Builder: Workbench 3",
-      "QuestDisplayNameMultiLanguage": {
-        "ru": "Строитель базы: верстак 3",
-        "en": "Base Builder: Workbench 3"
-      },
-      "QuestDescription": "Finish the crafting chain with the top bench.",
-      "QuestDescriptionMultiLanguage": {
-        "ru": "Завершите цепочку крафта топовым верстаком.",
-        "en": "Finish the crafting chain with the top bench."
-      },
-      "QuestMissions": "Place a level 3 workbench.",
-      "QuestMissionsMultiLanguage": {
-        "ru": "Поставьте верстак 3 уровня.",
-        "en": "Place a level 3 workbench."
-      },
-      "QuestType": "Deploy",
-      "QuestCategory": "Base Builder",
-      "QuestTabType": "Quests",
-      "Icon": "workbench3",
-      "QuestlineId": 3002,
-      "QuestlineOrder": 5,
-      "RequiredQuestIds": [
-        3204
-      ],
-      "Objectives": [
-        {
-          "ObjectiveId": "3205_deploy",
-          "Type": "Deploy",
-          "Target": "workbench3",
-          "TargetCount": 1,
-          "Description": "Place a level 3 workbench",
-          "DescriptionMultiLanguage": {
-            "ru": "Поставьте верстак 3 уровня",
-            "en": "Place a level 3 workbench"
-          },
-          "MatchMode": "contains",
-          "Icon": "workbench3"
+          "MatchMode": "shortname",
+          "Icon": "explosive.timed"
         }
       ],
       "PrizeList": [
@@ -1983,203 +2193,220 @@
           "PrizeName": "Scrap",
           "PrizeType": "Item",
           "ItemShortName": "scrap",
-          "ItemAmount": 300
+          "ItemAmount": 100
         },
         {
           "PrizeName": "XP",
           "PrizeType": "XP",
-          "ItemAmount": 18762
-        },
-        {
-          "PrizeName": "RP",
-          "PrizeType": "RP",
-          "ItemAmount": 5874
+          "ItemAmount": 5000
         }
       ],
       "Cooldown": 60,
       "IsRepeatable": true
     },
     {
-      "QuestID": 3206,
-      "QuestDisplayName": "Base Builder: Wooden Door",
+      "QuestID": 1016,
+      "QuestDisplayName": "Raidable Base: Medium",
       "QuestDisplayNameMultiLanguage": {
-        "ru": "Строитель базы: деревянная дверь",
-        "en": "Base Builder: Wooden Door"
+        "ru": "Рейд база: Medium",
+        "en": "Raidable Base: Medium"
       },
-      "QuestDescription": "Close off the entrance with a wooden door.",
+      "QuestDescription": "Complete a Medium raidable base.",
       "QuestDescriptionMultiLanguage": {
-        "ru": "Закройте вход деревянной дверью.",
-        "en": "Close off the entrance with a wooden door."
+        "ru": "Завершите рейд базу сложности Medium.",
+        "en": "Complete a Medium raidable base."
       },
-      "QuestMissions": "Place a wooden door.",
+      "QuestMissions": "Complete a Medium raidable base.",
       "QuestMissionsMultiLanguage": {
-        "ru": "Поставьте деревянную дверь.",
-        "en": "Place a wooden door."
+        "ru": "Завершите рейд базу Medium.",
+        "en": "Complete a Medium raidable base."
       },
-      "QuestType": "Deploy",
-      "QuestCategory": "Base Builder",
+      "QuestType": "RaidableBases",
+      "QuestCategory": "Events",
       "QuestTabType": "Quests",
-      "Icon": "door.hinged.wood",
-      "QuestlineId": 3002,
-      "QuestlineOrder": 6,
-      "RequiredQuestIds": [
-        3205
-      ],
+      "Icon": "explosive.timed",
       "Objectives": [
         {
-          "ObjectiveId": "3206_deploy",
-          "Type": "Deploy",
-          "Target": "door.hinged.wood",
+          "ObjectiveId": "1016_raidable",
+          "Type": "RaidableBases",
+          "Target": "Medium",
           "TargetCount": 1,
-          "Description": "Place a wooden door",
+          "Description": "Complete a Medium raidable base",
           "DescriptionMultiLanguage": {
-            "ru": "Поставьте деревянную дверь",
-            "en": "Place a wooden door"
+            "ru": "Завершите рейд базу Medium",
+            "en": "Complete a Medium raidable base"
           },
-          "MatchMode": "contains",
-          "Icon": "door.hinged.wood"
+          "MatchMode": "shortname",
+          "Icon": "explosive.timed"
         }
       ],
       "PrizeList": [
         {
-          "PrizeName": "Wood",
+          "PrizeName": "Scrap",
           "PrizeType": "Item",
-          "ItemShortName": "wood",
-          "ItemAmount": 1000
+          "ItemShortName": "scrap",
+          "ItemAmount": 150
         },
         {
           "PrizeName": "XP",
           "PrizeType": "XP",
-          "ItemAmount": 16578
-        },
-        {
-          "PrizeName": "RP",
-          "PrizeType": "RP",
-          "ItemAmount": 3690
+          "ItemAmount": 7500
         }
       ],
       "Cooldown": 60,
       "IsRepeatable": true
     },
     {
-      "QuestID": 3207,
-      "QuestDisplayName": "Base Builder: Sheet Door",
+      "QuestID": 1017,
+      "QuestDisplayName": "Raidable Base: Hard",
       "QuestDisplayNameMultiLanguage": {
-        "ru": "Строитель базы: железная дверь",
-        "en": "Base Builder: Sheet Door"
+        "ru": "Рейд база: Hard",
+        "en": "Raidable Base: Hard"
       },
-      "QuestDescription": "Upgrade the entrance with a sheet metal door.",
+      "QuestDescription": "Complete a Hard raidable base.",
       "QuestDescriptionMultiLanguage": {
-        "ru": "Укрепите вход железной дверью.",
-        "en": "Upgrade the entrance with a sheet metal door."
+        "ru": "Завершите рейд базу сложности Hard.",
+        "en": "Complete a Hard raidable base."
       },
-      "QuestMissions": "Place a sheet metal door.",
+      "QuestMissions": "Complete a Hard raidable base.",
       "QuestMissionsMultiLanguage": {
-        "ru": "Поставьте железную дверь.",
-        "en": "Place a sheet metal door."
+        "ru": "Завершите рейд базу Hard.",
+        "en": "Complete a Hard raidable base."
       },
-      "QuestType": "Deploy",
-      "QuestCategory": "Base Builder",
+      "QuestType": "RaidableBases",
+      "QuestCategory": "Events",
       "QuestTabType": "Quests",
-      "Icon": "door.hinged.metal",
-      "QuestlineId": 3002,
-      "QuestlineOrder": 7,
-      "RequiredQuestIds": [
-        3206
-      ],
+      "Icon": "rocket.launcher",
       "Objectives": [
         {
-          "ObjectiveId": "3207_deploy",
-          "Type": "Deploy",
-          "Target": "door.hinged.metal",
+          "ObjectiveId": "1017_raidable",
+          "Type": "RaidableBases",
+          "Target": "Hard",
           "TargetCount": 1,
-          "Description": "Place a sheet metal door",
+          "Description": "Complete a Hard raidable base",
           "DescriptionMultiLanguage": {
-            "ru": "Поставьте железную дверь",
-            "en": "Place a sheet metal door"
+            "ru": "Завершите рейд базу Hard",
+            "en": "Complete a Hard raidable base"
           },
-          "MatchMode": "contains",
-          "Icon": "door.hinged.metal"
+          "MatchMode": "shortname",
+          "Icon": "rocket.launcher"
         }
       ],
       "PrizeList": [
         {
-          "PrizeName": "Metal Fragments",
+          "PrizeName": "Scrap",
           "PrizeType": "Item",
-          "ItemShortName": "metal.fragments",
-          "ItemAmount": 750
+          "ItemShortName": "scrap",
+          "ItemAmount": 250
         },
         {
           "PrizeName": "XP",
           "PrizeType": "XP",
-          "ItemAmount": 14394
-        },
-        {
-          "PrizeName": "RP",
-          "PrizeType": "RP",
-          "ItemAmount": 1506
+          "ItemAmount": 10000
         }
       ],
       "Cooldown": 60,
       "IsRepeatable": true
     },
     {
-      "QuestID": 3208,
-      "QuestDisplayName": "Base Builder: Armored Door",
+      "QuestID": 1018,
+      "QuestDisplayName": "Raidable Base: Expert",
       "QuestDisplayNameMultiLanguage": {
-        "ru": "Строитель базы: МВК дверь",
-        "en": "Base Builder: Armored Door"
+        "ru": "Рейд база: Expert",
+        "en": "Raidable Base: Expert"
       },
-      "QuestDescription": "Finish your entrance with an armored door.",
+      "QuestDescription": "Complete an Expert raidable base.",
       "QuestDescriptionMultiLanguage": {
-        "ru": "Завершите укрепление входа МВК дверью.",
-        "en": "Finish your entrance with an armored door."
+        "ru": "Завершите рейд базу сложности Expert.",
+        "en": "Complete an Expert raidable base."
       },
-      "QuestMissions": "Place an armored door.",
+      "QuestMissions": "Complete an Expert raidable base.",
       "QuestMissionsMultiLanguage": {
-        "ru": "Поставьте МВК дверь.",
-        "en": "Place an armored door."
+        "ru": "Завершите рейд базу Expert.",
+        "en": "Complete an Expert raidable base."
       },
-      "QuestType": "Deploy",
-      "QuestCategory": "Base Builder",
+      "QuestType": "RaidableBases",
+      "QuestCategory": "Events",
       "QuestTabType": "Quests",
-      "Icon": "door.hinged.toptier",
-      "QuestlineId": 3002,
-      "QuestlineOrder": 8,
-      "RequiredQuestIds": [
-        3207
-      ],
+      "Icon": "rocket.launcher",
       "Objectives": [
         {
-          "ObjectiveId": "3208_deploy",
-          "Type": "Deploy",
-          "Target": "door.hinged.toptier",
+          "ObjectiveId": "1018_raidable",
+          "Type": "RaidableBases",
+          "Target": "Expert",
           "TargetCount": 1,
-          "Description": "Place an armored door",
+          "Description": "Complete an Expert raidable base",
           "DescriptionMultiLanguage": {
-            "ru": "Поставьте МВК дверь",
-            "en": "Place an armored door"
+            "ru": "Завершите рейд базу Expert",
+            "en": "Complete an Expert raidable base"
           },
-          "MatchMode": "contains",
-          "Icon": "door.hinged.toptier"
+          "MatchMode": "shortname",
+          "Icon": "rocket.launcher"
         }
       ],
       "PrizeList": [
         {
-          "PrizeName": "HQM",
+          "PrizeName": "Scrap",
           "PrizeType": "Item",
-          "ItemShortName": "metal.refined",
-          "ItemAmount": 25
+          "ItemShortName": "scrap",
+          "ItemAmount": 350
         },
         {
           "PrizeName": "XP",
           "PrizeType": "XP",
-          "ItemAmount": 12210
+          "ItemAmount": 12500
+        }
+      ],
+      "Cooldown": 60,
+      "IsRepeatable": true
+    },
+    {
+      "QuestID": 1019,
+      "QuestDisplayName": "Raidable Base: Nightmare",
+      "QuestDisplayNameMultiLanguage": {
+        "ru": "Рейд база: Nightmare",
+        "en": "Raidable Base: Nightmare"
+      },
+      "QuestDescription": "Complete a Nightmare raidable base.",
+      "QuestDescriptionMultiLanguage": {
+        "ru": "Завершите рейд базу сложности Nightmare.",
+        "en": "Complete a Nightmare raidable base."
+      },
+      "QuestMissions": "Complete a Nightmare raidable base.",
+      "QuestMissionsMultiLanguage": {
+        "ru": "Завершите рейд базу Nightmare.",
+        "en": "Complete a Nightmare raidable base."
+      },
+      "QuestType": "RaidableBases",
+      "QuestCategory": "Events",
+      "QuestTabType": "Quests",
+      "Icon": "ammo.rocket.basic",
+      "Objectives": [
+        {
+          "ObjectiveId": "1019_raidable",
+          "Type": "RaidableBases",
+          "Target": "Nightmare",
+          "TargetCount": 1,
+          "Description": "Complete a Nightmare raidable base",
+          "DescriptionMultiLanguage": {
+            "ru": "Завершите рейд базу Nightmare",
+            "en": "Complete a Nightmare raidable base"
+          },
+          "MatchMode": "shortname",
+          "Icon": "ammo.rocket.basic"
+        }
+      ],
+      "PrizeList": [
+        {
+          "PrizeName": "Scrap",
+          "PrizeType": "Item",
+          "ItemShortName": "scrap",
+          "ItemAmount": 500
         },
         {
-          "PrizeName": "RP",
-          "PrizeType": "RP",
-          "ItemAmount": 18323
+          "PrizeName": "XP",
+          "PrizeType": "XP",
+          "ItemAmount": 15000
         }
       ],
       "Cooldown": 60,
