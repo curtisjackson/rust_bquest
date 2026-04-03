@@ -1,5 +1,7 @@
 # BQuest
 
+Языковые версии: [EN](README.md)
+
 `BQuest` — полноэкранный плагин квестов для Rust-серверов на Oxide/uMod.
 
 В текущем репозитории находятся:
@@ -23,7 +25,7 @@
 - Поддерживает цели на сдачу предметов через `SubmissionRequired`
 - Поддерживает многоязычные названия квестов, описания и текст целей
 
-![BQuest UI](pic1.png)
+![BQuest UI](pic1_ru.webp)
 
 ## Структура Репозитория
 
@@ -258,4 +260,5 @@ oxide.grant group default BQuest.default
 
 ## Дополнительные Документы
 
+- English-версия инструкции: `docs/QUEST_AUTHORING.md`
 - инструкция по созданию квестов: `docs/QUEST_AUTHORING_RU.md`

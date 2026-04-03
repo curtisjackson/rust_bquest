@@ -1,5 +1,7 @@
 # BQuest
 
+Language versions: [RU](README_RU.md)
+
 `BQuest` is a fullscreen quest plugin for Rust servers on Oxide/uMod.
 
 The current repository contains:
@@ -23,7 +25,7 @@ This README reflects the code and data currently present in this folder.
 - Supports item submission objectives through `SubmissionRequired`
 - Supports multilingual quest titles, descriptions and objective text
 
-![BQuest UI](pic1.png)
+![BQuest UI](pic1_en.webp)
 
 ## Repository Layout
 
@@ -258,4 +260,5 @@ When changing content in this repository:
 
 ## Additional Docs
 
+- English quest authoring guide in `docs/QUEST_AUTHORING.md`
 - quest authoring guide in `docs/QUEST_AUTHORING_RU.md`
